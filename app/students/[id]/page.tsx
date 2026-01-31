@@ -5,6 +5,7 @@ export default async function StudentDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const { id } = await params
-  return <StudentDetailClient studentId={id} />
+  // Await params in Server Component before passing to Client Component
+  const resolvedParams = await params
+  return <StudentDetailClient studentId={resolvedParams.id} />
 }

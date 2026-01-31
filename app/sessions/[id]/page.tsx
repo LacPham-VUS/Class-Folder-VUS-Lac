@@ -55,9 +55,10 @@ import { Toaster } from "@/components/ui/toaster"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Slider } from "@/components/ui/slider"
+import { use } from "react"
 
-export default async function SessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params
+export default function SessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   return <SessionDetailClient id={resolvedParams.id} />
 }
 

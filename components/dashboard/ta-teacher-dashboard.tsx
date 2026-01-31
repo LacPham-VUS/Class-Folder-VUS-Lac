@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
+import { useUserPreferences } from "@/hooks/use-user-preferences"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,7 @@ import Link from "next/link"
 
 export function TATeacherDashboard() {
   const { currentRole, currentUser, selectedCenterId } = useAuth()
+  const { preferences, loading: preferencesLoading } = useUserPreferences()
   const [todaysSessions, setTodaysSessions] = useState<Session[]>([])
   const [draftReports, setDraftReports] = useState<ClassReport[]>([])
   const [studentsAtRisk, setStudentsAtRisk] = useState<Student[]>([])
@@ -52,7 +54,7 @@ export function TATeacherDashboard() {
     loadDashboardData()
   }, [currentRole, currentUser, selectedCenterId])
 
-  if (loading) {
+  if (loading || preferencesLoading) {
     return (
       <div className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -71,10 +73,48 @@ export function TATeacherDashboard() {
     )
   }
 
+  // Get enabled widgets sorted by order
+  const enabledWidgets = preferences.dashboardWidgets
+    .filter((w) => w.enabled)
+    .sort((a, b) => a.order - b.order)
+
+  console.log('📊 Dashboard widgets:', {
+    all: preferences.dashboardWidgets,
+    enabled: enabledWidgets,
+  })
+
+  const renderWidget = (widgetId: string) => {
+    switch (widgetId) {
+      case "overview":
+        return renderOverviewWidget()
+      case "upcomingSessions":
+        return renderUpcomingSessionsWidget()
+      case "recentNotes":
+        return renderDraftReportsWidget()
+      case "riskStudents":
+        return renderRiskStudentsWidget()
+      case "parentCommunications":
+        return null // Not implemented for TA/Teacher
+      case "analytics":
+        return null // Not implemented for TA/Teacher
+      default:
+        return null
+    }
+  }
+
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {enabledWidgets.map((widget) => (
+        <div key={widget.id}>
+          {renderWidget(widget.id)}
+        </div>
+      ))}
+    </div>
+  )
+
+  function renderOverviewWidget() {
+    return (
+      <div key="overview" className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Today's Sessions</CardTitle>
@@ -112,9 +152,12 @@ export function TATeacherDashboard() {
           </CardContent>
         </Card>
       </div>
+    )
+  }
 
-      {/* Today's Sessions */}
-      <Card>
+  function renderUpcomingSessionsWidget() {
+    return (
+      <Card key="upcomingSessions">
         <CardHeader>
           <CardTitle>Today's Sessions</CardTitle>
           <CardDescription>Your scheduled sessions for today</CardDescription>
@@ -155,89 +198,95 @@ export function TATeacherDashboard() {
           )}
         </CardContent>
       </Card>
+    )
+  }
 
-      {/* Draft Reports */}
-      {draftReports.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{currentRole === "TA" ? "Draft Reports" : "Reports to Review"}</CardTitle>
-            <CardDescription>
-              {currentRole === "TA"
-                ? "Sessions with incomplete reports - click to continue editing"
-                : "Review and approve submitted reports"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {draftReports.map((report) => (
-                <div
-                  key={report.id}
-                  className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={report.status === "Draft" ? "outline" : "secondary"}>{report.status}</Badge>
-                      <span className="font-medium">Session {report.sessionId}</span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{report.summary.substring(0, 80)}...</p>
-                  </div>
-                  <Link href={currentRole === "TA" ? `/sessions/${report.sessionId}` : `/reports/${report.id}`}>
-                    <Button variant="ghost" size="sm">
-                      {currentRole === "TA" ? "Continue" : "Review"}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+  function renderDraftReportsWidget() {
+    if (draftReports.length === 0) return null
 
-      {/* Students Needing Attention */}
-      {studentsAtRisk.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Students Needing Attention</CardTitle>
-            <CardDescription>Students with risk alerts or attendance concerns</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {studentsAtRisk.map((student) => (
-                <div
-                  key={student.id}
-                  className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
-                >
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      variant="outline"
-                      className={
-                        student.riskLevel === "Red"
-                          ? "border-red-500 text-red-500"
-                          : student.riskLevel === "Yellow"
-                            ? "border-yellow-500 text-yellow-500"
-                            : "border-green-500 text-green-500"
-                      }
-                    >
-                      {student.riskLevel}
-                    </Badge>
-                    <div>
-                      <p className="font-medium">{student.fullName}</p>
-                      <p className="text-sm text-muted-foreground">ID: {student.id}</p>
-                    </div>
+    return (
+      <Card key="recentNotes">
+        <CardHeader>
+          <CardTitle>{currentRole === "TA" ? "Draft Reports" : "Reports to Review"}</CardTitle>
+          <CardDescription>
+            {currentRole === "TA"
+              ? "Sessions with incomplete reports - click to continue editing"
+              : "Review and approve submitted reports"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {draftReports.map((report) => (
+              <div
+                key={report.id}
+                className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Badge variant={report.status === "Draft" ? "outline" : "secondary"}>{report.status}</Badge>
+                    <span className="font-medium">Session {report.sessionId}</span>
                   </div>
-                  <Link href={`/students/${student.id}`}>
-                    <Button variant="ghost" size="sm">
-                      View
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <p className="mt-1 text-sm text-muted-foreground">{report.summary.substring(0, 80)}...</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  )
+                <Link href={currentRole === "TA" ? `/sessions/${report.sessionId}` : `/reports/${report.id}`}>
+                  <Button variant="ghost" size="sm">
+                    {currentRole === "TA" ? "Continue" : "Review"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  function renderRiskStudentsWidget() {
+    if (studentsAtRisk.length === 0) return null
+
+    return (
+      <Card key="riskStudents">
+        <CardHeader>
+          <CardTitle>Students Needing Attention</CardTitle>
+          <CardDescription>Students with risk alerts or attendance concerns</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {studentsAtRisk.map((student) => (
+              <div
+                key={student.id}
+                className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
+              >
+                <div className="flex items-center gap-3">
+                  <Badge
+                    variant="outline"
+                    className={
+                      student.riskLevel === "Red"
+                        ? "border-red-500 text-red-500"
+                        : student.riskLevel === "Yellow"
+                          ? "border-yellow-500 text-yellow-500"
+                          : "border-green-500 text-green-500"
+                    }
+                  >
+                    {student.riskLevel}
+                  </Badge>
+                  <div>
+                    <p className="font-medium">{student.fullName}</p>
+                    <p className="text-sm text-muted-foreground">ID: {student.id}</p>
+                  </div>
+                </div>
+                <Link href={`/students/${student.id}`}>
+                  <Button variant="ghost" size="sm">
+                    View
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 }

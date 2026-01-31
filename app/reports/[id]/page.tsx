@@ -41,6 +41,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { RiskIndicator } from "@/components/risk-indicator"
+import { use } from "react"
 
 interface ReportWithDetails extends ClassReport {
   session: Session
@@ -53,21 +54,17 @@ interface StudentWithAttendance extends Student {
   notes: StudentNote[]
 }
 
-export default function ReportDetailPage({ params }: { params: { id: string } }) {
+export default function ReportDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
+  return <ReportDetailClient reportId={resolvedParams.id} />
+}
+
+function ReportDetailClient({ reportId }: { reportId: string }) {
   const router = useRouter()
   const { currentUser } = useAuth()
   const [report, setReport] = useState<ReportWithDetails | null>(null)
   const [students, setStudents] = useState<StudentWithAttendance[]>([])
   const [loading, setLoading] = useState(true)
-  const [reportId, setReportId] = useState<string>("")
-
-  useEffect(() => {
-    const resolveParams = async () => {
-      const resolvedParams = params instanceof Promise ? await params : params
-      setReportId(resolvedParams.id)
-    }
-    resolveParams()
-  }, [params])
 
   useEffect(() => {
     if (reportId) {

@@ -29,11 +29,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Search, Phone, Mail, Calendar, ImageIcon } from "lucide-react" // Added ImageIcon import
+import { Search, Phone, Mail, Calendar, ImageIcon, Star, Plus } from "lucide-react" // Added icons
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
+import { useUserPreferences } from "@/hooks/use-user-preferences"
+import { ViewModeSwitcher } from "@/components/view-mode-switcher"
+import { SavedFilters } from "@/components/saved-filters"
+import { CustomTagsManager } from "@/components/custom-tags-manager"
+import { cn } from "@/lib/utils"
 
 export default function StudentsPage() {
   const { currentUser } = useAuth()
+  const { preferences, setViewMode, togglePinnedStudent, addQuickAccess } = useUserPreferences()
   const [students, setStudents] = useState<Student[]>([])
   const [centers, setCenters] = useState<Center[]>([])
   const [classes, setClasses] = useState<Class[]>([])
@@ -112,6 +119,40 @@ export default function StudentsPage() {
     return matchesSearch && matchesRisk
   })
 
+  // Sort students - pinned first, then by risk level
+  const sortedStudents = [...filteredStudents].sort((a, b) => {
+    const aIsPinned = preferences.pinnedStudents.includes(a.id)
+    const bIsPinned = preferences.pinnedStudents.includes(b.id)
+    
+    if (aIsPinned && !bIsPinned) return -1
+    if (!aIsPinned && bIsPinned) return 1
+    
+    // Then sort by risk level
+    const riskOrder = { Red: 0, Yellow: 1, Green: 2 }
+    return (riskOrder[a.riskLevel || "Green"] || 2) - (riskOrder[b.riskLevel || "Green"] || 2)
+  })
+
+  function handleApplyFilter(filters: Record<string, any>) {
+    setSelectedCenter(filters.center || "all")
+    setSelectedClass(filters.class || "all")
+    setSelectedRisk(filters.risk || "all")
+    setSearchQuery(filters.search || "")
+  }
+
+  function handlePinStudent(student: Student, e: React.MouseEvent) {
+    e.stopPropagation()
+    togglePinnedStudent(student.id)
+  }
+
+  function handleAddQuickAccess(student: Student, e: React.MouseEvent) {
+    e.stopPropagation()
+    addQuickAccess({
+      id: student.id,
+      type: "student",
+      label: student.fullName,
+    })
+  }
+
   if (loading) {
     return (
       <div className="space-y-6 p-6">
@@ -131,6 +172,21 @@ export default function StudentsPage() {
         <div>
           <h1 className="text-3xl font-bold">Student Management</h1>
           <p className="text-muted-foreground">Quản lý học viên và theo dõi tiến độ học tập</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <ViewModeSwitcher value={preferences.viewMode} onChange={setViewMode} />
+          <SavedFilters
+            type="student"
+            currentFilters={{
+              center: selectedCenter,
+              class: selectedClass,
+              risk: selectedRisk,
+              search: searchQuery,
+            }}
+            onApplyFilter={handleApplyFilter}
+          />
+          <CustomTagsManager />
         </div>
       </div>
 
@@ -191,60 +247,266 @@ export default function StudentsPage() {
         </CardContent>
       </Card>
 
-      {/* Student Grid */}
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {filteredStudents.map((student) => (
-          <Card
-            key={student.id}
-            className="cursor-pointer transition-all hover:shadow-lg hover:border-primary hover:bg-accent/5"
-            onClick={() => handleStudentClick(student)}
-          >
-            <CardContent className="p-4">
-              <div className="flex flex-col items-center space-y-3">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.fullName} />
-                  <AvatarFallback>
-                    {student.fullName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="text-center w-full">
-                  <h3 className="font-semibold text-lg">{student.fullName}</h3>
-                  <p className="text-sm text-muted-foreground">{student.dateOfBirth}</p>
-                </div>
-
-                <div className="flex items-center gap-2 w-full justify-center">
-                  {student.riskLevel && (
-                    <Badge
-                      className={
-                        student.riskLevel === "Green"
-                          ? "bg-emerald-100 text-emerald-700 border-emerald-300"
-                          : student.riskLevel === "Yellow"
-                            ? "bg-amber-100 text-amber-700 border-amber-300"
-                            : "bg-red-100 text-red-700 border-red-300"
-                      }
-                    >
-                      {student.riskLevel}
-                    </Badge>
-                  )}
-                  {student.isNewStudent && (
-                    <Badge variant="outline" className="text-blue-600 border-blue-600">
-                      New
-                    </Badge>
-                  )}
-                </div>
-
-                {student.guardianName && (
-                  <div className="text-xs text-muted-foreground w-full text-center">PH: {student.guardianName}</div>
+      {/* Student Grid/List/Compact Views */}
+      {preferences.viewMode === "grid" && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {sortedStudents.map((student) => {
+            const isPinned = preferences.pinnedStudents.includes(student.id)
+            return (
+              <Card
+                key={student.id}
+                className={cn(
+                  "cursor-pointer transition-all hover:shadow-lg hover:border-primary hover:bg-accent/5 relative group",
+                  isPinned && "border-yellow-400 border-2 bg-yellow-50/50 dark:bg-yellow-950/20"
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                onClick={() => handleStudentClick(student)}
+              >
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "h-8 w-8 p-0",
+                      isPinned && "text-yellow-600 dark:text-yellow-400"
+                    )}
+                    onClick={(e) => handlePinStudent(student, e)}
+                  >
+                    <Star className={cn("h-4 w-4", isPinned && "fill-current")} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => handleAddQuickAccess(student, e)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <CardContent className="p-4">
+                  <div className="flex flex-col items-center space-y-3">
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.fullName} />
+                      <AvatarFallback>
+                        {student.fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="text-center w-full">
+                      <h3 className="font-semibold text-lg">{student.fullName}</h3>
+                      <p className="text-sm text-muted-foreground">{student.dateOfBirth}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2 w-full justify-center flex-wrap">
+                      {student.riskLevel && (
+                        <Badge
+                          className={
+                            student.riskLevel === "Green"
+                              ? "bg-emerald-100 text-emerald-700 border-emerald-300"
+                              : student.riskLevel === "Yellow"
+                                ? "bg-amber-100 text-amber-700 border-amber-300"
+                                : "bg-red-100 text-red-700 border-red-300"
+                          }
+                        >
+                          {student.riskLevel}
+                        </Badge>
+                      )}
+                      {student.isNewStudent && (
+                        <Badge variant="outline" className="text-blue-600 border-blue-600">
+                          New
+                        </Badge>
+                      )}
+                      {isPinned && (
+                        <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                          Pinned
+                        </Badge>
+                      )}
+                    </div>
+
+                    {student.guardianName && (
+                      <div className="text-xs text-muted-foreground w-full text-center">PH: {student.guardianName}</div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+
+      {preferences.viewMode === "list" && (
+        <div className="space-y-2">
+          {sortedStudents.map((student) => {
+            const isPinned = preferences.pinnedStudents.includes(student.id)
+            return (
+              <Card
+                key={student.id}
+                className={cn(
+                  "cursor-pointer transition-all hover:shadow-md hover:border-primary relative group",
+                  isPinned && "border-yellow-400 border-2 bg-yellow-50/50 dark:bg-yellow-950/20"
+                )}
+                onClick={() => handleStudentClick(student)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-14 w-14">
+                      <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.fullName} />
+                      <AvatarFallback>
+                        {student.fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-lg">{student.fullName}</h3>
+                        {isPinned && <Star className="h-4 w-4 text-yellow-600 fill-current" />}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {student.dateOfBirth} • PH: {student.guardianName}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Phone className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">{student.guardianPhone}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {student.riskLevel && (
+                        <Badge
+                          className={
+                            student.riskLevel === "Green"
+                              ? "bg-emerald-100 text-emerald-700 border-emerald-300"
+                              : student.riskLevel === "Yellow"
+                                ? "bg-amber-100 text-amber-700 border-amber-300"
+                                : "bg-red-100 text-red-700 border-red-300"
+                          }
+                        >
+                          {student.riskLevel}
+                        </Badge>
+                      )}
+                      {student.isNewStudent && (
+                        <Badge variant="outline" className="text-blue-600 border-blue-600">
+                          New
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                          "h-8 w-8 p-0",
+                          isPinned && "text-yellow-600 dark:text-yellow-400"
+                        )}
+                        onClick={(e) => handlePinStudent(student, e)}
+                      >
+                        <Star className={cn("h-4 w-4", isPinned && "fill-current")} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => handleAddQuickAccess(student, e)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+
+      {preferences.viewMode === "compact" && (
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {sortedStudents.map((student) => {
+                const isPinned = preferences.pinnedStudents.includes(student.id)
+                return (
+                  <div
+                    key={student.id}
+                    className={cn(
+                      "flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-accent/50 group relative",
+                      isPinned && "bg-yellow-50/50 dark:bg-yellow-950/20"
+                    )}
+                    onClick={() => handleStudentClick(student)}
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.fullName} />
+                      <AvatarFallback className="text-xs">
+                        {student.fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium truncate">{student.fullName}</span>
+                        {isPinned && <Star className="h-3 w-3 text-yellow-600 fill-current flex-shrink-0" />}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{student.dateOfBirth}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {student.riskLevel && (
+                        <div
+                          className={cn(
+                            "h-2 w-2 rounded-full",
+                            student.riskLevel === "Green"
+                              ? "bg-emerald-500"
+                              : student.riskLevel === "Yellow"
+                                ? "bg-amber-500"
+                                : "bg-red-500"
+                          )}
+                        />
+                      )}
+                      {student.isNewStudent && (
+                        <Badge variant="outline" className="text-xs py-0 px-1 text-blue-600 border-blue-600">
+                          N
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                          "h-7 w-7 p-0",
+                          isPinned && "text-yellow-600 dark:text-yellow-400"
+                        )}
+                        onClick={(e) => handlePinStudent(student, e)}
+                      >
+                        <Star className={cn("h-3 w-3", isPinned && "fill-current")} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0"
+                        onClick={(e) => handleAddQuickAccess(student, e)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Student Detail Sheet */}
       <Sheet open={selectedStudent !== null} onOpenChange={(open: boolean) => !open && setSelectedStudent(null)}>

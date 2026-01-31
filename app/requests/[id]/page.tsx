@@ -1,4 +1,5 @@
 "use client"
+import { use } from "react"
 import { RequestDetailClient } from "./request-detail-client"
 
 interface ActivityLogEntry {
@@ -9,7 +10,7 @@ interface ActivityLogEntry {
   details: string
 }
 
-export default async function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params
+export default function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   return <RequestDetailClient requestId={resolvedParams.id} />
 }

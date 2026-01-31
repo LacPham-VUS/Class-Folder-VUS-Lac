@@ -9,6 +9,7 @@ import type { SpecialRequest, Class } from "@/lib/types"
 import { AlertTriangle, TrendingUp, Users, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
+import { useUserPreferences } from "@/hooks/use-user-preferences"
 
 interface CenterHeatmapData {
   center: {
@@ -25,6 +26,7 @@ interface CenterHeatmapData {
 
 export function StudentCareDashboard() {
   const { currentUser } = useAuth()
+  const { preferences, loading: preferencesLoading } = useUserPreferences()
   const [heatmapData, setHeatmapData] = useState<CenterHeatmapData[]>([])
   const [overdueRequests, setOverdueRequests] = useState<SpecialRequest[]>([])
   const [topRiskClasses, setTopRiskClasses] = useState<Class[]>([])
@@ -66,7 +68,7 @@ export function StudentCareDashboard() {
     loadDashboardData()
   }, [currentUser])
 
-  if (loading) {
+  if (loading || preferencesLoading) {
     return (
       <div className="space-y-4">
         <div className="grid gap-4 md:grid-cols-3">
@@ -88,8 +90,38 @@ export function StudentCareDashboard() {
   const totalRedClasses = heatmapData.reduce((sum, center) => sum + center.Red, 0)
   const totalYellowClasses = heatmapData.reduce((sum, center) => sum + center.Yellow, 0)
 
+  // Get enabled widgets sorted by order
+  const enabledWidgets = preferences.dashboardWidgets
+    .filter((w) => w.enabled)
+    .sort((a, b) => a.order - b.order)
+
+  const renderWidget = (widgetId: string) => {
+    switch (widgetId) {
+      case "overview":
+        return renderOverviewWidget()
+      case "riskStudents":
+        return renderCenterHeatmapWidget()
+      case "upcomingSessions":
+        return renderTopRiskClassesWidget()
+      case "recentNotes":
+        return renderOverdueRequestsWidget()
+      default:
+        return null
+    }
+  }
+
   return (
     <div className="space-y-6">
+      {enabledWidgets.map((widget) => (
+        <div key={widget.id}>
+          {renderWidget(widget.id)}
+        </div>
+      ))}
+    </div>
+  )
+
+  function renderOverviewWidget() {
+    return (
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -124,7 +156,11 @@ export function StudentCareDashboard() {
           </CardContent>
         </Card>
       </div>
+    )
+  }
 
+  function renderCenterHeatmapWidget() {
+    return (
       <Card>
         <CardHeader>
           <CardTitle>Center Risk Heatmap</CardTitle>
@@ -172,90 +208,98 @@ export function StudentCareDashboard() {
           </div>
         </CardContent>
       </Card>
+    )
+  }
 
-      {overdueRequests.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Overdue Special Requests</CardTitle>
-            <CardDescription>Requests past their SLA deadline</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {overdueRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-center justify-between rounded-lg border border-red-500/20 bg-card p-4 transition-colors hover:bg-accent"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="destructive">{request.priority}</Badge>
-                      <Badge variant="outline" className="border-red-500 text-red-500">
-                        Overdue
-                      </Badge>
-                      <span className="font-medium">{request.title}</span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {request.type} • Due: {request.dueDate}
+  function renderOverdueRequestsWidget() {
+    if (overdueRequests.length === 0) return null
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Overdue Special Requests</CardTitle>
+          <CardDescription>Requests past their SLA deadline</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {overdueRequests.map((request) => (
+              <div
+                key={request.id}
+                className="flex items-center justify-between rounded-lg border border-red-500/20 bg-card p-4 transition-colors hover:bg-accent"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="destructive">{request.priority}</Badge>
+                    <Badge variant="outline" className="border-red-500 text-red-500">
+                      Overdue
+                    </Badge>
+                    <span className="font-medium">{request.title}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {request.type} • Due: {request.dueDate}
+                  </p>
+                </div>
+                <Link href={`/requests/${request.id}`}>
+                  <Button variant="ghost" size="sm">
+                    View
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  function renderTopRiskClassesWidget() {
+    if (topRiskClasses.length === 0) return null
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Risk Classes</CardTitle>
+          <CardDescription>Classes requiring immediate intervention</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {topRiskClasses.map((cls) => (
+              <div
+                key={cls.id}
+                className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent"
+              >
+                <div className="flex items-center gap-3">
+                  <Badge
+                    variant="outline"
+                    className={
+                      cls.riskLevel === "Red"
+                        ? "border-red-500 text-red-500"
+                        : cls.riskLevel === "Yellow"
+                          ? "border-yellow-500 text-yellow-500"
+                          : "border-green-500 text-green-500"
+                    }
+                  >
+                    {cls.riskLevel}
+                  </Badge>
+                  <div>
+                    <p className="font-medium">{cls.code}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {cls.program} {cls.level} • {cls.studentCount} students
                     </p>
                   </div>
-                  <Link href={`/requests/${request.id}`}>
-                    <Button variant="ghost" size="sm">
-                      View
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {topRiskClasses.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Risk Classes</CardTitle>
-            <CardDescription>Classes requiring immediate intervention</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {topRiskClasses.map((cls) => (
-                <div
-                  key={cls.id}
-                  className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent"
-                >
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      variant="outline"
-                      className={
-                        cls.riskLevel === "Red"
-                          ? "border-red-500 text-red-500"
-                          : cls.riskLevel === "Yellow"
-                            ? "border-yellow-500 text-yellow-500"
-                            : "border-green-500 text-green-500"
-                      }
-                    >
-                      {cls.riskLevel}
-                    </Badge>
-                    <div>
-                      <p className="font-medium">{cls.code}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {cls.program} {cls.level} • {cls.studentCount} students
-                      </p>
-                    </div>
-                  </div>
-                  <Link href={`/classes/${cls.id}`}>
-                    <Button variant="ghost" size="sm">
-                      View
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  )
+                <Link href={`/classes/${cls.id}`}>
+                  <Button variant="ghost" size="sm">
+                    View
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 }

@@ -18,9 +18,10 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { use } from "react"
 
-export default async function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params
+export default function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
 
   return <ClassDetailPageClient classId={resolvedParams.id} />
 }

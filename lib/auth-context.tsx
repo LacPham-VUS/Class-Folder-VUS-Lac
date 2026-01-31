@@ -9,6 +9,7 @@ interface AuthContextType {
   currentRole: Role
   currentUser: User | null
   isAuthenticated: boolean
+  isLoading: boolean // Add loading state
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
   setRole: (role: Role) => void
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true) // Start as loading
   const [currentRole, setCurrentRole] = useState<Role>("TA")
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [selectedCenterId, setSelectedCenterId] = useState<string | null>(null)
@@ -49,6 +51,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (savedClassId) {
       setSelectedClassId(savedClassId)
     }
+
+    // Mark loading as complete
+    setIsLoading(false)
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -115,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentRole,
         currentUser,
         isAuthenticated,
+        isLoading, // Add to provider value
         login,
         logout,
         setRole,
