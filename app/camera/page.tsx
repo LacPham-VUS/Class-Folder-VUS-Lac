@@ -295,12 +295,10 @@ function CameraPageContent() {
             {isSaving ? "Saving..." : `Save (${capturedPhotos.length})`}
           </Button>
         </div>
-      </div>
-
-      <div className="flex flex-1 flex-col md:flex-row gap-3 md:gap-4 overflow-hidden p-3 md:p-4">
+      </div>      <div className="flex flex-1 flex-col md:flex-row gap-3 md:gap-4 overflow-hidden p-3 md:p-4">
         {/* Camera View */}
-        <div className="flex flex-1 flex-col gap-3 md:gap-4">
-          <Card className="relative flex-1 overflow-hidden bg-black border-0">
+        <div className="flex flex-1 flex-col gap-3 md:gap-4 min-h-0">
+          <Card className="relative flex-1 overflow-hidden bg-black border-0 min-h-[40vh] md:min-h-0">
             <video
               ref={videoRef}
               autoPlay
@@ -379,15 +377,58 @@ function CameraPageContent() {
             >
               <Camera className="h-8 w-8 md:h-10 md:w-10" />
             </Button>
-            
-            {/* Spacer for balance */}
+              {/* Spacer for balance */}
             <div className="h-12 w-12" />
           </div>
-        </div>        {/* Preview Panel - Always visible when has photos */}
-        <div className={cn(
-          "w-full md:w-72 lg:w-80 flex flex-col gap-3",
-          capturedPhotos.length === 0 && "hidden md:flex"
-        )}>
+          
+          {/* Mobile Preview Thumbnails - Shows horizontally under controls */}
+          {capturedPhotos.length > 0 && (
+            <div className="md:hidden">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-xs font-semibold text-white">Ảnh đã chụp ({capturedPhotos.length})</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-6 text-[10px] px-2 ml-auto"
+                  onClick={() => setCapturedPhotos([])}
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Xóa tất cả
+                </Button>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {capturedPhotos.map((photo, index) => (
+                  <div
+                    key={photo.id}
+                    className="relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30"
+                  >
+                    <img
+                      src={photo.dataUrl}
+                      alt={`Photo ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    {/* Delete button - Always visible */}
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="absolute -right-1 -top-1 h-5 w-5 rounded-full shadow-lg"
+                      onClick={() => deletePhoto(photo.id)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                    {/* Number badge */}
+                    <div className="absolute left-0.5 bottom-0.5 bg-black/70 text-white text-[8px] px-1 rounded">
+                      #{index + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Desktop Preview Panel - Hidden on mobile */}
+        <div className="hidden md:flex w-72 lg:w-80 flex-col gap-3">
           <Card className="flex-1 overflow-hidden max-h-[35vh] md:max-h-none">
             <CardContent className="p-3 md:p-4 h-full flex flex-col">
               <div className="flex items-center justify-between mb-2 md:mb-3">

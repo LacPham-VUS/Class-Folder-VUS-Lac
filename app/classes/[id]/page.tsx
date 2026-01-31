@@ -507,14 +507,14 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                           alt={`Class photo ${index + 1}`}
                           className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
-                        {/* Delete Button */}
+                        {/* Delete Button - Always visible on mobile, hover on desktop */}
                         <Button
                           size="icon"
                           variant="destructive"
-                          className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                          className="absolute top-2 right-2 h-8 w-8 md:h-7 md:w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg"
                           onClick={() => setPhotoToDelete(photo.id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4 md:h-3.5 md:w-3.5" />
                         </Button>
                       </div>
                       
@@ -580,14 +580,14 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                             alt={displayName}
                             className="h-full w-full object-cover transition-transform group-hover:scale-105"
                           />
-                          {/* Delete Button */}
+                          {/* Delete Button - Always visible on mobile, hover on desktop */}
                           <Button
                             size="icon"
                             variant="destructive"
-                            className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                            className="absolute top-2 right-2 h-8 w-8 md:h-7 md:w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg"
                             onClick={() => setPhotoToDelete(photo.id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4 md:h-3.5 md:w-3.5" />
                           </Button>
                         </div>
                         
