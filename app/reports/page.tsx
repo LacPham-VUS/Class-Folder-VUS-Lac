@@ -301,11 +301,11 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Class Reports</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold">Class Reports</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             {currentUser?.role === "Teacher" && "Review and approve class reports from TAs"}
             {currentUser?.role === "ASA" && "Monitor class reports across your assigned centers"}
             {currentUser?.role === "TQM" && "View all class reports and track compliance"}
@@ -313,13 +313,13 @@ export default function ReportsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleExport("excel")}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Excel
+          <Button variant="outline" onClick={() => handleExport("excel")} size="sm" className="flex-1 sm:flex-none">
+            <Download className="h-4 w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Export </span>Excel
           </Button>
-          <Button variant="outline" onClick={() => handleExport("pdf")}>
-            <Download className="h-4 w-4 mr-2" />
-            Export PDF
+          <Button variant="outline" onClick={() => handleExport("pdf")} size="sm" className="flex-1 sm:flex-none">
+            <Download className="h-4 w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Export </span>PDF
           </Button>
         </div>
       </div>
@@ -341,14 +341,14 @@ export default function ReportsPage() {
         <TabsContent value="list" className="space-y-4">
           {/* Filters */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Filter className="h-5 w-5" />
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                <Filter className="h-4 w-4 md:h-5 md:w-5" />
                 Filters
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <CardContent className="p-4 md:p-6 pt-0 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -439,10 +439,10 @@ export default function ReportsPage() {
           <div className="grid gap-4">
             {filteredReports.length === 0 ? (
               <Card>
-                <CardContent className="py-12 text-center">
-                  <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Reports Found</h3>
-                  <p className="text-muted-foreground">Try adjusting your filters</p>
+                <CardContent className="py-8 md:py-12 text-center">
+                  <FileText className="h-10 w-10 md:h-12 md:w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-base md:text-lg font-semibold mb-2">No Reports Found</h3>
+                  <p className="text-sm text-muted-foreground">Try adjusting your filters</p>
                 </CardContent>
               </Card>
             ) : (
@@ -451,28 +451,28 @@ export default function ReportsPage() {
                   key={report.id}
                   className="hover:shadow-md hover:border-primary hover:bg-accent/5 transition-shadow"
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-lg font-semibold">{report.class.code}</h3>
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                      <div className="flex-1 space-y-2 md:space-y-3 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base md:text-lg font-semibold">{report.class.code}</h3>
                           {getStatusBadge(report.status)}
                           <Badge variant="outline" className="text-xs">
                             <Calendar className="h-3 w-3 mr-1" />
                             {format(new Date(report.session.scheduledDate), "dd/MM/yyyy")}
                           </Badge>
-                          <span className="text-sm text-muted-foreground">Lesson {report.session.sessionNumber}</span>
+                          <span className="text-xs md:text-sm text-muted-foreground">Lesson {report.session.sessionNumber}</span>
                         </div>
 
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs md:text-sm text-muted-foreground truncate">
                           <span className="font-medium">{report.center.nameVN}</span>
                           {" • "}
                           {report.session.topic}
                         </div>
 
-                        <p className="text-sm line-clamp-2">{report.summary}</p>
+                        <p className="text-xs md:text-sm line-clamp-2">{report.summary}</p>
 
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs text-muted-foreground">
                           {report.submittedBy && (
                             <span>
                               Submitted by {report.submittedBy}{" "}
@@ -489,16 +489,16 @@ export default function ReportsPage() {
                       </div>
 
                       <div className="flex gap-2">
-                        <Link href={`/sessions/${report.sessionId}`}>
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4 mr-2" />
+                        <Link href={`/sessions/${report.sessionId}`} className="flex-1 md:flex-none">
+                          <Button variant="outline" size="sm" className="w-full">
+                            <Eye className="h-4 w-4 mr-1 md:mr-2" />
                             View
                           </Button>
                         </Link>
                         {currentUser?.role === "Teacher" && report.status === "Submitted" && (
-                          <Link href={`/reports/${report.id || report.sessionId}`}>
-                            <Button size="sm">
-                              <CheckCheck className="h-4 w-4 mr-2" />
+                          <Link href={`/reports/${report.id || report.sessionId}`} className="flex-1 md:flex-none">
+                            <Button size="sm" className="w-full">
+                              <CheckCheck className="h-4 w-4 mr-1 md:mr-2" />
                               Review
                             </Button>
                           </Link>
@@ -513,22 +513,22 @@ export default function ReportsPage() {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Total Reports</CardDescription>
+              <CardHeader className="p-3 md:p-6 pb-2 md:pb-3">
+                <CardDescription className="text-xs md:text-sm">Total Reports</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{analytics.totalReports}</div>
+              <CardContent className="p-3 md:p-6 pt-0">
+                <div className="text-2xl md:text-3xl font-bold">{analytics.totalReports}</div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Submission Rate</CardDescription>
+              <CardHeader className="p-3 md:p-6 pb-2 md:pb-3">
+                <CardDescription className="text-xs md:text-sm">Submission Rate</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-green-600">{analytics.submissionRate}%</div>
+              <CardContent className="p-3 md:p-6 pt-0">
+                <div className="text-2xl md:text-3xl font-bold text-green-600">{analytics.submissionRate}%</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   {analytics.submittedReports + analytics.approvedReports} submitted
                 </p>
@@ -536,22 +536,22 @@ export default function ReportsPage() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Pending Review</CardDescription>
+              <CardHeader className="p-3 md:p-6 pb-2 md:pb-3">
+                <CardDescription className="text-xs md:text-sm">Pending Review</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-blue-600">{analytics.submittedReports}</div>
-                <p className="text-xs text-muted-foreground mt-1">Awaiting teacher approval</p>
+              <CardContent className="p-3 md:p-6 pt-0">
+                <div className="text-2xl md:text-3xl font-bold text-blue-600">{analytics.submittedReports}</div>
+                <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Awaiting teacher approval</p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Late Submissions</CardDescription>
+              <CardHeader className="p-3 md:p-6 pb-2 md:pb-3">
+                <CardDescription className="text-xs md:text-sm">Late Submissions</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-orange-600">{analytics.lateReports}</div>
-                <p className="text-xs text-muted-foreground mt-1">&gt;1 day after session</p>
+              <CardContent className="p-3 md:p-6 pt-0">
+                <div className="text-2xl md:text-3xl font-bold text-orange-600">{analytics.lateReports}</div>
+                <p className="text-xs text-muted-foreground mt-1 hidden sm:block">&gt;1 day after session</p>
               </CardContent>
             </Card>
           </div>

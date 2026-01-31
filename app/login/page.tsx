@@ -67,16 +67,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-3 sm:p-4">
       <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto mb-2 flex items-center justify-center">
-            <Image src="/vus-logo.png" alt="VUS Logo" width={200} height={70} className="object-contain" />
+        <CardHeader className="space-y-2 sm:space-y-3 text-center px-4 sm:px-6">
+          <div className="mx-auto mb-1 sm:mb-2 flex items-center justify-center">
+            <Image src="/vus-logo.png" alt="VUS Logo" width={180} height={60} className="object-contain w-auto h-12 sm:h-16" />
           </div>
-          <CardTitle className="text-2xl font-bold">Digital Class Folder</CardTitle>
-          <CardDescription>Đăng nhập để quản lý lớp học của bạn</CardDescription>
+          <CardTitle className="text-xl sm:text-2xl font-bold">Digital Class Folder</CardTitle>
+          <CardDescription className="text-sm">Đăng nhập để quản lý lớp học của bạn</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -132,18 +132,18 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="grid gap-2">
+          <div className="grid gap-1.5 sm:gap-2">
             {demoAccounts.map((account) => (
               <Button
                 key={account.email}
                 variant="outline"
-                className="justify-start text-left bg-transparent"
+                className="justify-start text-left bg-transparent h-auto py-2 sm:py-2.5"
                 onClick={() => quickLogin(account.email)}
                 disabled={isLoading}
               >
                 <div className="flex flex-col">
-                  <span className="font-medium">{account.name}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="font-medium text-sm sm:text-base">{account.name}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">
                     {account.role} • {account.email}
                   </span>
                 </div>

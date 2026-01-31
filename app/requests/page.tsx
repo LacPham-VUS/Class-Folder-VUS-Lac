@@ -99,13 +99,13 @@ export default function RequestsPage() {
   const resolvedRequests = requests.filter((r) => r.status === "Resolved" || r.status === "Closed")
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Toaster />
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Special Requests</h1>
-          <p className="text-muted-foreground">Track and manage special requests</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Special Requests</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Track and manage special requests</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
@@ -114,13 +114,13 @@ export default function RequestsPage() {
               New Request
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create Special Request</DialogTitle>
               <DialogDescription>Submit a new request for tracking and resolution</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Request Type</Label>
                   <Select defaultValue="Academic Support">
@@ -197,39 +197,39 @@ export default function RequestsPage() {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Open Requests</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Open Requests</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{openRequests.length}</div>
+            <div className="text-xl sm:text-2xl font-bold">{openRequests.length}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Overdue</CardTitle>
             <Clock className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">{overdueRequests.length}</div>
+            <div className="text-xl sm:text-2xl font-bold text-red-500">{overdueRequests.length}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Resolved</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{resolvedRequests.length}</div>
+            <div className="text-xl sm:text-2xl font-bold">{resolvedRequests.length}</div>
           </CardContent>
         </Card>
       </div>
 
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 md:flex-row">
+        <CardContent className="pt-4 md:pt-6">
+          <div className="flex flex-col gap-3 md:gap-4 md:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -239,42 +239,43 @@ export default function RequestsPage() {
                 className="pl-9"
               />
             </div>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-full md:w-40">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Open">Open</SelectItem>
-                <SelectItem value="InProgress">In Progress</SelectItem>
-                <SelectItem value="Resolved">Resolved</SelectItem>
-                <SelectItem value="Closed">Closed</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterPriority} onValueChange={setFilterPriority}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priority</SelectItem>
-                <SelectItem value="Low">Low</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-                <SelectItem value="Urgent">Urgent</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterSLA} onValueChange={setFilterSLA}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="SLA" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All SLA</SelectItem>
-                <SelectItem value="OnTrack">On Track</SelectItem>
-                <SelectItem value="AtRisk">At Risk</SelectItem>
-                <SelectItem value="Overdue">Overdue</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-3 gap-2 md:flex md:gap-4">
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full md:w-32">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Open">Open</SelectItem>
+                  <SelectItem value="InProgress">In Progress</SelectItem>
+                  <SelectItem value="Resolved">Resolved</SelectItem>
+                  <SelectItem value="Closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterPriority} onValueChange={setFilterPriority}>
+                <SelectTrigger className="w-full md:w-32">
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priority</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterSLA} onValueChange={setFilterSLA}>
+                <SelectTrigger className="w-full md:w-32">
+                  <SelectValue placeholder="SLA" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All SLA</SelectItem>
+                  <SelectItem value="OnTrack">On Track</SelectItem>
+                  <SelectItem value="AtRisk">At Risk</SelectItem>
+                  <SelectItem value="Overdue">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>

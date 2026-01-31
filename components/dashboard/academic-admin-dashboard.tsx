@@ -52,26 +52,26 @@ export function AcademicAdminDashboard() {
   const complianceRate = completedSessions > 0 ? Math.round((sessionsWithReports / completedSessions) * 100) : 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-4 md:p-6">
             <CardTitle className="text-sm font-medium">Comment Templates</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6 pt-0">
             <div className="text-2xl font-bold">{snippets.length}</div>
             <p className="text-xs text-muted-foreground">Active templates available</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-4 md:p-6">
             <CardTitle className="text-sm font-medium">Report Compliance</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6 pt-0">
             <div className="text-2xl font-bold">{complianceRate}%</div>
             <p className="text-xs text-muted-foreground">
               {sessionsWithReports} of {completedSessions} sessions
@@ -80,11 +80,11 @@ export function AcademicAdminDashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-4 md:p-6">
             <CardTitle className="text-sm font-medium">Missing Reports</CardTitle>
             <AlertCircle className="h-4 w-4 text-yellow-500" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 md:p-6 pt-0">
             <div className="text-2xl font-bold">{completedSessions - sessionsWithReports}</div>
             <p className="text-xs text-muted-foreground">Completed sessions without reports</p>
           </CardContent>
@@ -93,11 +93,11 @@ export function AcademicAdminDashboard() {
 
       {/* Template Health */}
       <Card>
-        <CardHeader>
-          <CardTitle>Template Usage Analytics</CardTitle>
-          <CardDescription>Most and least used comment templates</CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl">Template Usage Analytics</CardTitle>
+          <CardDescription className="text-xs md:text-sm">Most and least used comment templates</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0">
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 text-sm font-medium">Most Used Templates</h3>
@@ -106,12 +106,12 @@ export function AcademicAdminDashboard() {
                   .sort((a, b) => b.usageCount - a.usageCount)
                   .slice(0, 3)
                   .map((snippet) => (
-                    <div key={snippet.id} className="flex items-center justify-between rounded-lg border bg-card p-3">
-                      <div className="flex-1">
-                        <p className="font-medium">{snippet.category}</p>
-                        <p className="text-sm text-muted-foreground">{snippet.textEN}</p>
+                    <div key={snippet.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border bg-card p-3 gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{snippet.category}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground truncate">{snippet.textEN}</p>
                       </div>
-                      <Badge variant="secondary">{snippet.usageCount} uses</Badge>
+                      <Badge variant="secondary" className="w-fit">{snippet.usageCount} uses</Badge>
                     </div>
                   ))}
               </div>
@@ -124,12 +124,12 @@ export function AcademicAdminDashboard() {
                   .sort((a, b) => a.usageCount - b.usageCount)
                   .slice(0, 3)
                   .map((snippet) => (
-                    <div key={snippet.id} className="flex items-center justify-between rounded-lg border bg-card p-3">
-                      <div className="flex-1">
-                        <p className="font-medium">{snippet.category}</p>
-                        <p className="text-sm text-muted-foreground">{snippet.textEN}</p>
+                    <div key={snippet.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border bg-card p-3 gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{snippet.category}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground truncate">{snippet.textEN}</p>
                       </div>
-                      <Badge variant="outline">{snippet.usageCount} uses</Badge>
+                      <Badge variant="outline" className="w-fit">{snippet.usageCount} uses</Badge>
                     </div>
                   ))}
               </div>
@@ -140,19 +140,19 @@ export function AcademicAdminDashboard() {
 
       {/* Quick Actions */}
       <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Manage templates and system settings</CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl">Quick Actions</CardTitle>
+          <CardDescription className="text-xs md:text-sm">Manage templates and system settings</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 md:grid-cols-2">
+        <CardContent className="p-4 md:p-6 pt-0">
+          <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
             <Link href="/templates">
-              <Button variant="outline" className="h-auto w-full flex-col items-start gap-2 p-4 bg-transparent">
+              <Button variant="outline" className="h-auto w-full flex-col items-start gap-2 p-3 md:p-4 bg-transparent">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  <span className="font-medium">Manage Templates</span>
+                  <FileText className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="font-medium text-sm">Manage Templates</span>
                 </div>
-                <p className="text-left text-sm text-muted-foreground">
+                <p className="text-left text-xs md:text-sm text-muted-foreground">
                   Add, edit, or remove comment snippets and checklists
                 </p>
                 <ArrowRight className="ml-auto h-4 w-4" />
@@ -160,12 +160,12 @@ export function AcademicAdminDashboard() {
             </Link>
 
             <Link href="/reports">
-              <Button variant="outline" className="h-auto w-full flex-col items-start gap-2 p-4 bg-transparent">
+              <Button variant="outline" className="h-auto w-full flex-col items-start gap-2 p-3 md:p-4 bg-transparent">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="font-medium">Review Reports</span>
+                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="font-medium text-sm">Review Reports</span>
                 </div>
-                <p className="text-left text-sm text-muted-foreground">
+                <p className="text-left text-xs md:text-sm text-muted-foreground">
                   Monitor report submission and quality across all classes
                 </p>
                 <ArrowRight className="ml-auto h-4 w-4" />

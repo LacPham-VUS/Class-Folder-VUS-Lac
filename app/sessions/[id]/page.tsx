@@ -495,18 +495,20 @@ function SessionDetailClient({ id }: { id: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background p-3 md:p-6">
       <Toaster />
 
       {/* Header */}
-      <div className="mb-6 flex items-center gap-4">
-        <Link href="/sessions">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <h1 className="text-3xl font-bold tracking-tight">Daily Class Reports</h1>
-        <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="mb-4 md:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-2 md:gap-4">
+          <Link href="/sessions">
+            <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+              <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
+            </Button>
+          </Link>
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Daily Class Reports</h1>
+        </div>
+        <div className="sm:ml-auto flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
           {isSaving && (
             <>
               <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
@@ -524,84 +526,84 @@ function SessionDetailClient({ id }: { id: string }) {
 
       {/* Main Card */}
       <Card className="mx-auto max-w-7xl">
-        <CardContent className="p-8">
+        <CardContent className="p-4 md:p-8">
           {/* Lesson Header */}
-          <div className="mb-6 flex items-center justify-between border-b pb-4">
+          <div className="mb-4 md:mb-6 flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 gap-2">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-lg md:text-xl font-semibold">
                 Lesson {session.sessionNumber}: {session.scheduledDate}
               </h2>
             </div>
           </div>
 
           {/* Teacher/TA Info */}
-          <div className="mb-6 text-sm">
+          <div className="mb-4 md:mb-6 text-xs md:text-sm">
             <span className="font-semibold">Teacher:</span> {session.teacherName} |{" "}
             <span className="font-semibold">TA:</span> {session.taName}
           </div>
 
           {/* Stats Grid */}
-          <div className="mb-8 grid grid-cols-4 gap-4">
-            <div className="flex items-center gap-3 rounded-lg bg-green-50 p-4 dark:bg-green-950/20">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <div className="mb-6 md:mb-8 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-3 rounded-lg bg-green-50 p-2 md:p-4 dark:bg-green-950/20">
+              <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
               <div>
-                <div className="text-lg font-semibold">
+                <div className="text-base md:text-lg font-semibold">
                   {presentCount}/{totalStudents}
                 </div>
-                <div className="text-sm text-muted-foreground">Present</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Present</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-lg bg-orange-50 p-4 dark:bg-orange-950/20">
-              <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+            <div className="flex items-center gap-2 md:gap-3 rounded-lg bg-orange-50 p-2 md:p-4 dark:bg-orange-950/20">
+              <AlertTriangle className="h-4 w-4 md:h-5 md:w-5 text-orange-600 dark:text-orange-400" />
               <div>
-                <div className="text-lg font-semibold">{attentiveCount}</div>
-                <div className="text-sm text-muted-foreground">Attentive</div>
+                <div className="text-base md:text-lg font-semibold">{attentiveCount}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Attentive</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-lg bg-amber-50 p-4 dark:bg-amber-950/20">
-              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div className="flex items-center gap-2 md:gap-3 rounded-lg bg-amber-50 p-2 md:p-4 dark:bg-amber-950/20">
+              <AlertCircle className="h-4 w-4 md:h-5 md:w-5 text-amber-600 dark:text-amber-400" />
               <div>
-                <div className="text-lg font-semibold">{atRiskCount}</div>
-                <div className="text-sm text-muted-foreground">At Risk</div>
+                <div className="text-base md:text-lg font-semibold">{atRiskCount}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">At Risk</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4 dark:bg-blue-950/20">
-              <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center gap-2 md:gap-3 rounded-lg bg-blue-50 p-2 md:p-4 dark:bg-blue-950/20">
+              <Users className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400" />
               <div>
-                <div className="text-lg font-semibold">{newStudentsCount}</div>
-                <div className="text-sm text-muted-foreground">New</div>
+                <div className="text-base md:text-lg font-semibold">{newStudentsCount}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">New</div>
               </div>
             </div>
           </div>
 
           {/* Lesson Details Table */}
-          <div className="mb-8 overflow-hidden rounded-lg border">
-            <table className="w-full">
+          <div className="mb-6 md:mb-8 overflow-x-auto rounded-lg border">
+            <table className="w-full min-w-[500px]">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Book Pages
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Unit Number
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Lesson Title
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <th className="px-3 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Lesson Objectives
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-t">
-                  <td className="px-4 py-4 text-sm">{session.bookPages || "N/A"}</td>
-                  <td className="px-4 py-4 text-sm">{session.unitNumber || "N/A"}</td>
-                  <td className="px-4 py-4 text-sm">{session.lessonTitle || "No lesson title available"}</td>
-                  <td className="px-4 py-4 text-sm">{session.lessonObjectives || "No objectives specified"}</td>
+                  <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm">{session.bookPages || "N/A"}</td>
+                  <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm">{session.unitNumber || "N/A"}</td>
+                  <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm">{session.lessonTitle || "No lesson title available"}</td>
+                  <td className="px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm">{session.lessonObjectives || "No objectives specified"}</td>
                 </tr>
               </tbody>
             </table>
@@ -609,7 +611,7 @@ function SessionDetailClient({ id }: { id: string }) {
 
           {/* Student List with Attendance */}
           <div className="mb-4">
-            <h3 className="mb-4 text-lg font-semibold">Students</h3>
+            <h3 className="mb-3 md:mb-4 text-base md:text-lg font-semibold">Students</h3>
 
             <div className="space-y-2">
               {students.map((student) => {
@@ -632,33 +634,35 @@ function SessionDetailClient({ id }: { id: string }) {
                   >
                     {/* Student row header */}
                     <div
-                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-accent/5"
+                      className="flex cursor-pointer items-center justify-between p-3 md:p-4 hover:bg-accent/5"
                       onClick={() => handleToggleExpand(student.id)}
                     >
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
+                      <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                        <Avatar className="h-8 w-8 md:h-10 md:w-10">
                           <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.fullName} />
                           <AvatarFallback>{student.fullName.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <span className="font-medium text-foreground">{student.fullName}</span>
-                        {riskLevel === "Yellow" && (
-                          <Badge variant="outline" className="border-orange-500 bg-orange-50 text-orange-700">
-                            Attentive Care
-                          </Badge>
-                        )}
-                        {riskLevel === "Red" && (
-                          <Badge variant="outline" className="border-red-500 bg-red-50 text-red-700">
-                            At Risk
-                          </Badge>
-                        )}
-                        {student.isNewStudent && (
-                          <Badge variant="outline" className="border-blue-500 bg-blue-50 text-blue-700">
-                            New Student
-                          </Badge>
-                        )}
+                        <span className="font-medium text-sm md:text-base text-foreground">{student.fullName}</span>
+                        <div className="flex flex-wrap gap-1">
+                          {riskLevel === "Yellow" && (
+                            <Badge variant="outline" className="border-orange-500 bg-orange-50 text-orange-700 text-xs">
+                              Attentive
+                            </Badge>
+                          )}
+                          {riskLevel === "Red" && (
+                            <Badge variant="outline" className="border-red-500 bg-red-50 text-red-700 text-xs">
+                              At Risk
+                            </Badge>
+                          )}
+                          {student.isNewStudent && (
+                            <Badge variant="outline" className="border-blue-500 bg-blue-50 text-blue-700 text-xs">
+                              New
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4">
                         {canEdit && (
                           <Button
                             variant="ghost"
@@ -667,9 +671,9 @@ function SessionDetailClient({ id }: { id: string }) {
                               e.stopPropagation()
                               handleToggleExpand(student.id)
                             }}
-                            className="text-sm"
+                            className="text-xs md:text-sm"
                           >
-                            {isExpanded ? "Hide Comments" : "Add Comments"}
+                            {isExpanded ? "Hide" : "Add"} Comments
                           </Button>
                         )}
                         <div className="flex items-center gap-2">
@@ -679,7 +683,7 @@ function SessionDetailClient({ id }: { id: string }) {
                             disabled={!canEdit}
                           />
                           <Label
-                            className="cursor-pointer text-sm font-medium"
+                            className="cursor-pointer text-xs md:text-sm font-medium"
                             onClick={() => canEdit && handleAttendanceToggle(student.id)}
                           >
                             Attendance
@@ -689,8 +693,8 @@ function SessionDetailClient({ id }: { id: string }) {
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t bg-background/50 p-4">
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="border-t bg-background/50 p-3 md:p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <Label htmlFor={`positive-${student.id}`} className="text-sm font-medium">
                               Positive Comment

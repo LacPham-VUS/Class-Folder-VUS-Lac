@@ -383,25 +383,36 @@ function CameraPageContent() {
             {/* Spacer for balance */}
             <div className="h-12 w-12" />
           </div>
-        </div>
-
-        {/* Preview Panel - Hidden on mobile when empty */}
+        </div>        {/* Preview Panel - Always visible when has photos */}
         <div className={cn(
           "w-full md:w-72 lg:w-80 flex flex-col gap-3",
           capturedPhotos.length === 0 && "hidden md:flex"
         )}>
-          <Card className="flex-1 overflow-hidden max-h-[30vh] md:max-h-none">
+          <Card className="flex-1 overflow-hidden max-h-[35vh] md:max-h-none">
             <CardContent className="p-3 md:p-4 h-full flex flex-col">
-              <h3 className="text-sm font-semibold mb-2 md:mb-3">
-                Preview ({capturedPhotos.length})
-              </h3>
+              <div className="flex items-center justify-between mb-2 md:mb-3">
+                <h3 className="text-sm font-semibold">
+                  Ảnh đã chụp ({capturedPhotos.length})
+                </h3>
+                {capturedPhotos.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 text-xs px-2"
+                    onClick={() => setCapturedPhotos([])}
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Xóa tất cả
+                  </Button>
+                )}
+              </div>
               
-              <div className="flex-1 overflow-y-auto space-y-2">
+              <div className="flex-1 overflow-y-auto">
                 {capturedPhotos.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-8">
                     <Camera className="h-12 w-12 mb-2 opacity-20" />
-                    <p className="text-sm">No photos yet</p>
-                    <p className="text-xs">Take photos to see them here</p>
+                    <p className="text-sm">Chưa có ảnh</p>
+                    <p className="text-xs">Chụp ảnh để xem ở đây</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
@@ -419,24 +430,53 @@ function CameraPageContent() {
                         {/* Photo info overlay */}
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 md:p-2">
                           <p className="text-[10px] md:text-xs text-white truncate">
-                            {photo.studentName ? `📸 ${photo.studentName}` : `Class Photo ${index + 1}`}
+                            {photo.studentName ? `📸 ${photo.studentName}` : `Ảnh lớp ${index + 1}`}
                           </p>
                         </div>
                         
-                        {/* Delete button */}
+                        {/* Delete button - Always visible on mobile, hover on desktop */}
                         <Button
                           size="icon"
                           variant="destructive"
-                          className="absolute right-1 top-1 h-6 w-6 md:h-7 md:w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute right-1 top-1 h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md"
                           onClick={() => deletePhoto(photo.id)}
                         >
-                          <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
+                          <X className="h-4 w-4" />
                         </Button>
+                        
+                        {/* Photo number badge */}
+                        <div className="absolute left-1 top-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                          #{index + 1}
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+              
+              {/* Quick action bar when has photos */}
+              {capturedPhotos.length > 0 && (
+                <div className="mt-3 pt-3 border-t flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs h-9"
+                    onClick={() => setCapturedPhotos([])}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Hủy
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="flex-1 text-xs h-9"
+                    onClick={savePhotos}
+                    disabled={isSaving}
+                  >
+                    <Save className="h-3 w-3 mr-1" />
+                    {isSaving ? "Đang lưu..." : `Lưu (${capturedPhotos.length})`}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

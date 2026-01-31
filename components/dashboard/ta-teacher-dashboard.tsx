@@ -103,7 +103,7 @@ export function TATeacherDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {enabledWidgets.map((widget) => (
         <div key={widget.id}>
           {renderWidget(widget.id)}
@@ -114,41 +114,41 @@ export function TATeacherDashboard() {
 
   function renderOverviewWidget() {
     return (
-      <div key="overview" className="grid gap-4 md:grid-cols-3">
+      <div key="overview" className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Today's Sessions</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Today's Sessions</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{todaysSessions.length}</div>
-            <p className="text-xs text-muted-foreground">Scheduled for today</p>
+          <CardContent className="p-4 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold">{todaysSessions.length}</div>
+            <p className="text-[10px] md:text-xs text-muted-foreground">Scheduled for today</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">
               {currentRole === "TA" ? "Pending Reports" : "Reports to Review"}
             </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{draftReports.length}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="p-4 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold">{draftReports.length}</div>
+            <p className="text-[10px] md:text-xs text-muted-foreground">
               {currentRole === "TA" ? "Drafts to complete" : "Awaiting approval"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Students at Risk</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Students at Risk</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{studentsAtRisk.length}</div>
-            <p className="text-xs text-muted-foreground">Need attention</p>
+          <CardContent className="p-4 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold">{studentsAtRisk.length}</div>
+            <p className="text-[10px] md:text-xs text-muted-foreground">Need attention</p>
           </CardContent>
         </Card>
       </div>
@@ -158,35 +158,35 @@ export function TATeacherDashboard() {
   function renderUpcomingSessionsWidget() {
     return (
       <Card key="upcomingSessions">
-        <CardHeader>
-          <CardTitle>Today's Sessions</CardTitle>
-          <CardDescription>Your scheduled sessions for today</CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-base md:text-lg">Today's Sessions</CardTitle>
+          <CardDescription className="text-sm">Your scheduled sessions for today</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0">
           {todaysSessions.length === 0 ? (
             <p className="text-sm text-muted-foreground">No sessions scheduled for today</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {todaysSessions.map((session) => {
                 const cls = classesMap.get(session.classId)
                 return (
                   <div
                     key={session.id}
-                    className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border bg-card p-3 md:p-4 transition-colors hover:bg-accent/5 gap-2"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant={session.status === "Completed" ? "default" : "secondary"}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant={session.status === "Completed" ? "default" : "secondary"} className="text-xs">
                           {session.status}
                         </Badge>
-                        <span className="font-medium">{cls?.code || "Unknown Class"}</span>
+                        <span className="font-medium text-sm md:text-base">{cls?.code || "Unknown Class"}</span>
                       </div>
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="mt-1 text-xs md:text-sm text-muted-foreground truncate">
                         {session.topic} • {session.startTime} - {session.endTime}
                       </p>
                     </div>
                     <Link href={`/sessions/${session.id}`}>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                         View
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
@@ -206,30 +206,30 @@ export function TATeacherDashboard() {
 
     return (
       <Card key="recentNotes">
-        <CardHeader>
-          <CardTitle>{currentRole === "TA" ? "Draft Reports" : "Reports to Review"}</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-base md:text-lg">{currentRole === "TA" ? "Draft Reports" : "Reports to Review"}</CardTitle>
+          <CardDescription className="text-sm">
             {currentRole === "TA"
               ? "Sessions with incomplete reports - click to continue editing"
               : "Review and approve submitted reports"}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="p-4 md:p-6 pt-0">
+          <div className="space-y-2 md:space-y-3">
             {draftReports.map((report) => (
               <div
                 key={report.id}
-                className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
+                className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border bg-card p-3 md:p-4 transition-colors hover:bg-accent/5 gap-2"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Badge variant={report.status === "Draft" ? "outline" : "secondary"}>{report.status}</Badge>
-                    <span className="font-medium">Session {report.sessionId}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant={report.status === "Draft" ? "outline" : "secondary"} className="text-xs">{report.status}</Badge>
+                    <span className="font-medium text-sm md:text-base">Session {report.sessionId}</span>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">{report.summary.substring(0, 80)}...</p>
+                  <p className="mt-1 text-xs md:text-sm text-muted-foreground truncate">{report.summary.substring(0, 80)}...</p>
                 </div>
                 <Link href={currentRole === "TA" ? `/sessions/${report.sessionId}` : `/reports/${report.id}`}>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                     {currentRole === "TA" ? "Continue" : "Review"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -247,18 +247,18 @@ export function TATeacherDashboard() {
 
     return (
       <Card key="riskStudents">
-        <CardHeader>
-          <CardTitle>Students Needing Attention</CardTitle>
-          <CardDescription>Students with risk alerts or attendance concerns</CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-base md:text-lg">Students Needing Attention</CardTitle>
+          <CardDescription className="text-sm">Students with risk alerts or attendance concerns</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="p-4 md:p-6 pt-0">
+          <div className="space-y-2 md:space-y-3">
             {studentsAtRisk.map((student) => (
               <div
                 key={student.id}
-                className="flex items-center justify-between rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
+                className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border bg-card p-3 md:p-4 transition-colors hover:bg-accent/5 gap-2"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 md:gap-3">
                   <Badge
                     variant="outline"
                     className={
@@ -271,13 +271,13 @@ export function TATeacherDashboard() {
                   >
                     {student.riskLevel}
                   </Badge>
-                  <div>
-                    <p className="font-medium">{student.fullName}</p>
-                    <p className="text-sm text-muted-foreground">ID: {student.id}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm md:text-base truncate">{student.fullName}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">ID: {student.id}</p>
                   </div>
                 </div>
                 <Link href={`/students/${student.id}`}>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="w-full sm:w-auto">
                     View
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>

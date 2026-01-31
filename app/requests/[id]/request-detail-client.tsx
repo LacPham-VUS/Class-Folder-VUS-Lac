@@ -111,20 +111,20 @@ export function RequestDetailClient({ requestId }: { requestId: string }) {
       : 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Toaster />
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-3 md:gap-4">
         <Link href="/requests">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="shrink-0 mt-1">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">{request.title}</h1>
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight break-words">{request.title}</h1>
           </div>
-          <p className="text-muted-foreground">{request.type}</p>
+          <p className="text-sm md:text-base text-muted-foreground">{request.type}</p>
         </div>
       </div>
 
@@ -151,73 +151,73 @@ export function RequestDetailClient({ requestId }: { requestId: string }) {
 
       {request.slaStatus === "Overdue" && (
         <Card className="border-red-500 bg-red-500/5">
-          <CardHeader>
+          <CardHeader className="p-4 md:p-6">
             <div className="flex items-center gap-2 text-red-500">
-              <Clock className="h-5 w-5" />
-              <CardTitle className="text-red-500">Overdue by {daysOverdue} days</CardTitle>
+              <Clock className="h-4 w-4 md:h-5 md:w-5" />
+              <CardTitle className="text-red-500 text-base md:text-lg">Overdue by {daysOverdue} days</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm">This request is past its SLA deadline and requires immediate attention.</p>
+          <CardContent className="p-4 md:p-6 pt-0">
+            <p className="text-xs md:text-sm">This request is past its SLA deadline and requires immediate attention.</p>
           </CardContent>
         </Card>
       )}
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="space-y-6 md:col-span-2">
+      <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3">
+        <div className="space-y-4 md:space-y-6 md:col-span-2">
           <Card>
-            <CardHeader>
-              <CardTitle>Request Details</CardTitle>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-base md:text-lg">Request Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-4 md:p-6 pt-0 space-y-4">
               <div>
-                <Label className="text-muted-foreground">Description</Label>
-                <p className="mt-1">{request.description}</p>
+                <Label className="text-muted-foreground text-xs md:text-sm">Description</Label>
+                <p className="mt-1 text-sm md:text-base">{request.description}</p>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-3 md:gap-4 grid-cols-2">
                 <div>
-                  <Label className="text-muted-foreground">Class</Label>
-                  <p className="mt-1 font-medium">{classData?.code || "No class assigned"}</p>
+                  <Label className="text-muted-foreground text-xs md:text-sm">Class</Label>
+                  <p className="mt-1 font-medium text-sm md:text-base">{classData?.code || "No class assigned"}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Student</Label>
-                  <p className="mt-1 font-medium">{request.studentId || "N/A"}</p>
+                  <Label className="text-muted-foreground text-xs md:text-sm">Student</Label>
+                  <p className="mt-1 font-medium text-sm md:text-base">{request.studentId || "N/A"}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Requested By</Label>
-                  <p className="mt-1 font-medium">{requester?.name || "Unknown"}</p>
+                  <Label className="text-muted-foreground text-xs md:text-sm">Requested By</Label>
+                  <p className="mt-1 font-medium text-sm md:text-base">{requester?.name || "Unknown"}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Requested Date</Label>
-                  <p className="mt-1 font-medium">{new Date(request.requestedAt).toLocaleDateString()}</p>
+                  <Label className="text-muted-foreground text-xs md:text-sm">Requested Date</Label>
+                  <p className="mt-1 font-medium text-sm md:text-base">{new Date(request.requestedAt).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Due Date</Label>
-                  <p className="mt-1 font-medium">{request.dueDate || "No deadline"}</p>
+                  <Label className="text-muted-foreground text-xs md:text-sm">Due Date</Label>
+                  <p className="mt-1 font-medium text-sm md:text-base">{request.dueDate || "No deadline"}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Assigned To</Label>
-                  <p className="mt-1 font-medium">{request.assignedTo || "Unassigned"}</p>
+                  <Label className="text-muted-foreground text-xs md:text-sm">Assigned To</Label>
+                  <p className="mt-1 font-medium text-sm md:text-base">{request.assignedTo || "Unassigned"}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Resolution</CardTitle>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-base md:text-lg">Resolution</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-4 md:p-6 pt-0 space-y-4">
               {request.status === "Resolved" || request.status === "Closed" ? (
                 <>
                   <div>
-                    <Label className="text-muted-foreground">Resolution Details</Label>
-                    <p className="mt-1">{request.resolution || "No resolution details provided"}</p>
+                    <Label className="text-muted-foreground text-xs md:text-sm">Resolution Details</Label>
+                    <p className="mt-1 text-sm md:text-base">{request.resolution || "No resolution details provided"}</p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground">Resolved Date</Label>
-                    <p className="mt-1 font-medium">
+                    <Label className="text-muted-foreground text-xs md:text-sm">Resolved Date</Label>
+                    <p className="mt-1 font-medium text-sm md:text-base">
                       {request.resolvedAt ? new Date(request.resolvedAt).toLocaleDateString() : "N/A"}
                     </p>
                   </div>
@@ -225,7 +225,7 @@ export function RequestDetailClient({ requestId }: { requestId: string }) {
               ) : (
                 <>
                   <div className="space-y-2">
-                    <Label>Resolution Notes</Label>
+                    <Label className="text-sm">Resolution Notes</Label>
                     <Textarea placeholder="Document the resolution and actions taken..." rows={4} />
                   </div>
                   <Button onClick={handleResolve} className="w-full">

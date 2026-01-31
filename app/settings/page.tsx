@@ -332,13 +332,13 @@ export default function SettingsPage() {
   ]
 
   return (
-    <div className="flex-1 space-y-6 p-8 pt-6">
-      <div className="flex items-center justify-between">
+    <div className="flex-1 space-y-4 md:space-y-6 p-4 md:p-8 pt-4 md:pt-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">Manage your account and application preferences</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Manage your account and application preferences</p>
         </div>
-      </div>      <Tabs defaultValue="profile" className="space-y-6">
+      </div>      <Tabs defaultValue="profile" className="space-y-4 md:space-y-6">
         <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0 pb-2">
           <TabsList className="bg-muted/50 inline-flex w-max md:w-auto">
             {tabs

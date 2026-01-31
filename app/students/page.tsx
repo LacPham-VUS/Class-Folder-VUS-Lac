@@ -167,14 +167,14 @@ export default function StudentsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Student Management</h1>
-          <p className="text-muted-foreground">Quản lý học viên và theo dõi tiến độ học tập</p>
+          <h1 className="text-2xl md:text-3xl font-bold">Student Management</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Quản lý học viên và theo dõi tiến độ học tập</p>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <ViewModeSwitcher value={preferences.viewMode} onChange={setViewMode} />
           <SavedFilters
             type="student"
@@ -192,9 +192,9 @@ export default function StudentsPage() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="relative">
+        <CardContent className="pt-4 md:pt-6">
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+            <div className="relative sm:col-span-2 md:col-span-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Tìm theo tên học viên..."
@@ -249,7 +249,7 @@ export default function StudentsPage() {
 
       {/* Student Grid/List/Compact Views */}
       {preferences.viewMode === "grid" && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {sortedStudents.map((student) => {
             const isPinned = preferences.pinnedStudents.includes(student.id)
             return (

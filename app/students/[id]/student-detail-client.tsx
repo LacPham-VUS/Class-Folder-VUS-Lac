@@ -118,9 +118,9 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
 
   if (loading) {
     return (
-      <div className="space-y-6 p-6">
+      <div className="space-y-4 md:space-y-6 p-3 md:p-6">
         <Skeleton className="h-10 w-64" />
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
           <Skeleton className="h-64" />
           <Skeleton className="h-64" />
         </div>
@@ -130,10 +130,10 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
 
   if (!student) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 space-y-4">
-        <AlertCircle className="h-16 w-16 text-muted-foreground" />
-        <h2 className="text-2xl font-bold">Student Not Found</h2>
-        <p className="text-muted-foreground">The student with ID "{studentId}" does not exist.</p>
+      <div className="flex flex-col items-center justify-center h-96 space-y-4 p-4">
+        <AlertCircle className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground" />
+        <h2 className="text-xl md:text-2xl font-bold text-center">Student Not Found</h2>
+        <p className="text-sm md:text-base text-muted-foreground text-center">The student with ID "{studentId}" does not exist.</p>
         <Button onClick={() => router.push("/students")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Students
@@ -143,25 +143,25 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
       {/* Header with Back Button */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/students")}>
+      <div className="flex items-center gap-3 md:gap-4">
+        <Button variant="ghost" size="icon" onClick={() => router.push("/students")} className="shrink-0">
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Student Profile</h1>
-          <p className="text-muted-foreground">Chi tiết thông tin học viên</p>
+          <h1 className="text-xl md:text-3xl font-bold">Student Profile</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Chi tiết thông tin học viên</p>
         </div>
       </div>
 
       {/* Student Header Card */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            <Avatar className="h-32 w-32">
+        <CardContent className="pt-4 md:pt-6">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+            <Avatar className="h-20 w-20 md:h-32 md:w-32 mx-auto md:mx-0">
               <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.fullName} />
-              <AvatarFallback className="text-2xl">
+              <AvatarFallback className="text-lg md:text-2xl">
                 {student.fullName
                   .split(" ")
                   .map((n) => n[0])
@@ -169,21 +169,21 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1 space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-3xl font-bold">{student.fullName}</h2>
-                  <div className="flex items-center gap-3 mt-2 text-muted-foreground">
+            <div className="flex-1 space-y-3 md:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <h2 className="text-xl md:text-3xl font-bold">{student.fullName}</h2>
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 md:gap-3 mt-2 text-muted-foreground text-sm">
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
+                      <Calendar className="h-3 w-3 md:h-4 md:w-4" />
                       <span>{student.dateOfBirth}</span>
                     </div>
                     {student.status && (
-                      <Badge variant={student.status === "Active" ? "default" : "secondary"}>{student.status}</Badge>
+                      <Badge variant={student.status === "Active" ? "default" : "secondary"} className="text-xs">{student.status}</Badge>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-center sm:justify-end">
                   {student.riskLevel && (
                     <Badge
                       variant={
@@ -193,13 +193,13 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
                             ? "secondary"
                             : "destructive"
                       }
-                      className="text-lg px-4 py-1"
+                      className="text-sm md:text-lg px-2 md:px-4 py-0.5 md:py-1"
                     >
                       {student.riskLevel}
                     </Badge>
                   )}
                   {student.isNewStudent && (
-                    <Badge variant="outline" className="border-blue-600 text-blue-600 text-lg px-4 py-1">
+                    <Badge variant="outline" className="border-blue-600 text-blue-600 text-sm md:text-lg px-2 md:px-4 py-0.5 md:py-1">
                       New Student
                     </Badge>
                   )}
@@ -208,11 +208,11 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
 
               <Separator />
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Contact Info */}
                 <div>
-                  <h3 className="font-semibold mb-2">Contact Information</h3>
-                  <div className="space-y-2 text-sm">
+                  <h3 className="font-semibold mb-2 text-sm md:text-base">Contact Information</h3>
+                  <div className="space-y-2 text-xs md:text-sm">
                     {student.guardianName && (
                       <div>
                         <span className="text-muted-foreground">Phụ huynh:</span>{" "}
@@ -221,14 +221,14 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
                     )}
                     {student.guardianPhone && (
                       <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <Phone className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
                         <span>{student.guardianPhone}</span>
                       </div>
                     )}
                     {student.email && (
                       <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{student.email}</span>
+                        <Mail className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                        <span className="truncate">{student.email}</span>
                       </div>
                     )}
                   </div>
@@ -237,13 +237,13 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
                 {/* Class Info */}
                 {studentClass && (
                   <div>
-                    <h3 className="font-semibold mb-2">Current Class</h3>
-                    <div className="p-4 bg-muted rounded-lg">
-                      <p className="text-xl font-bold">{studentClass.code}</p>
-                      <p className="text-sm text-muted-foreground">
+                    <h3 className="font-semibold mb-2 text-sm md:text-base">Current Class</h3>
+                    <div className="p-3 md:p-4 bg-muted rounded-lg">
+                      <p className="text-lg md:text-xl font-bold">{studentClass.code}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">
                         {studentClass.program} - {studentClass.level}
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">{studentClass.shift} Shift</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mt-1">{studentClass.shift} Shift</p>
                     </div>
                   </div>
                 )}
@@ -254,48 +254,48 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
       </Card>
 
       {/* Statistics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Attendance Rate</CardTitle>
+            <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{attendanceRate}%</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold">{attendanceRate}%</div>
+            <p className="text-[10px] md:text-xs text-muted-foreground">
               {metrics.length} / {completedSessions} sessions
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Positive Notes</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Positive Notes</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{positiveNotes}</div>
-            <p className="text-xs text-muted-foreground">Total commendations</p>
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold text-green-600">{positiveNotes}</div>
+            <p className="text-[10px] md:text-xs text-muted-foreground">Total commendations</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Areas for Improvement</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Areas for Improvement</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{improvementNotes}</div>
-            <p className="text-xs text-muted-foreground">Notes recorded</p>
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold text-orange-600">{improvementNotes}</div>
+            <p className="text-[10px] md:text-xs text-muted-foreground">Notes recorded</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Open Requests</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">Open Requests</CardTitle>
+            <AlertCircle className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{openRequests}</div>
-            <p className="text-xs text-muted-foreground">Pending actions</p>
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="text-xl md:text-2xl font-bold">{openRequests}</div>
+            <p className="text-[10px] md:text-xs text-muted-foreground">Pending actions</p>
           </CardContent>
         </Card>
       </div>
@@ -303,21 +303,21 @@ export function StudentDetailClient({ studentId }: StudentDetailClientProps) {
       {/* Skills Breakdown */}
       {avgSkills && (
         <Card>
-          <CardHeader>
-            <CardTitle>Skills Performance</CardTitle>
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-base md:text-lg">Skills Performance</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
+          <CardContent className="p-4 md:p-6 pt-0">
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
               {Object.entries(avgSkills).map(([skill, score]) => (
                 <div key={skill} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium capitalize">{skill}</span>
-                    <span className="text-2xl font-bold">{score.toFixed(1)}</span>
+                    <span className="text-xs md:text-sm font-medium capitalize">{skill}</span>
+                    <span className="text-lg md:text-2xl font-bold">{score.toFixed(1)}</span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
                     <div className="h-full bg-primary rounded-full" style={{ width: `${(score / 5) * 100}%` }} />
                   </div>
-                  <p className="text-xs text-muted-foreground">out of 5.0</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">out of 5.0</p>
                 </div>
               ))}
             </div>

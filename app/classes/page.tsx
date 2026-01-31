@@ -85,13 +85,13 @@ export default function ClassesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Classes</h1>
-          <p className="text-muted-foreground">Manage and view all classes</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Classes</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Manage and view all classes</p>
         </div>
-        <Button>
+        <Button className="w-fit">
           <Plus className="mr-2 h-4 w-4" />
           New Class
         </Button>
@@ -99,8 +99,8 @@ export default function ClassesPage() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 md:flex-row">
+        <CardContent className="pt-4 md:pt-6">
+          <div className="flex flex-col gap-3 md:gap-4 md:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -110,47 +110,48 @@ export default function ClassesPage() {
                 className="pl-9"
               />
             </div>
-            <Select value={filterProgram} onValueChange={setFilterProgram}>
-              <SelectTrigger className="w-full md:w-48">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Program" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Programs</SelectItem>
-                {programs.map((program) => (
-                  <SelectItem key={program} value={program}>
-                    {program}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Upcoming">Upcoming</SelectItem>
-                <SelectItem value="Completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 gap-2 md:flex md:gap-4">
+              <Select value={filterProgram} onValueChange={setFilterProgram}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="Program" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Programs</SelectItem>
+                  {programs.map((program) => (
+                    <SelectItem key={program} value={program}>
+                      {program}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full md:w-36">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Upcoming">Upcoming</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Class Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filteredClasses.map((cls) => {
           const center = centers.find((c) => c.id === cls.centerId)
           return (
             <Link key={cls.id} href={`/classes/${cls.id}`}>
-              <Card className="transition-all hover:border-primary hover:shadow-md hover:bg-accent/5">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{cls.code}</CardTitle>
-                      <CardDescription>{center?.name}</CardDescription>
+              <Card className="transition-all hover:border-primary hover:shadow-md hover:bg-accent/5 h-full">
+                <CardHeader className="p-4 md:p-6">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-base md:text-lg truncate">{cls.code}</CardTitle>
+                      <CardDescription className="text-sm truncate">{center?.name}</CardDescription>
                     </div>
                     {cls.riskLevel && (
                       <Badge
@@ -168,25 +169,25 @@ export default function ClassesPage() {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
+                <CardContent className="p-4 md:p-6 pt-0">
+                  <div className="space-y-1.5 md:space-y-2">
+                    <div className="flex items-center justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Program</span>
-                      <span className="font-medium">
+                      <span className="font-medium truncate ml-2">
                         {cls.program} {cls.level}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Schedule</span>
-                      <span className="font-medium text-xs">{cls.shift}</span>
+                      <span className="font-medium text-xs truncate ml-2">{cls.shift}</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Students</span>
                       <span className="font-medium">{cls.studentCount}</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Status</span>
-                      <Badge variant={cls.status === "Active" ? "default" : "secondary"}>{cls.status}</Badge>
+                      <Badge variant={cls.status === "Active" ? "default" : "secondary"} className="text-xs">{cls.status}</Badge>
                     </div>
                   </div>
                 </CardContent>
