@@ -81,11 +81,19 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
     loadData()
   }, [classId, router])
   
+  // Reload photos when switching to files tab
+  useEffect(() => {
+    if (activeTab === "files") {
+      loadPhotos()
+    }
+  }, [activeTab])
+  
   function loadPhotos() {
     try {
       const storedPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
       const classPhotos = storedPhotos.filter((p: any) => p.classId === classId)
       setPhotos(classPhotos)
+      console.log("Loaded photos for class:", classId, "Count:", classPhotos.length)
     } catch (error) {
       console.error("Error loading photos:", error)
     }

@@ -185,7 +185,6 @@ function CameraPageContent() {
   function deletePhoto(photoId: string) {
     setCapturedPhotos(prev => prev.filter(p => p.id !== photoId))
   }
-
   async function savePhotos() {
     if (capturedPhotos.length === 0) {
       toast({
@@ -201,22 +200,28 @@ function CameraPageContent() {
     try {
       const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
       const photosToSave = capturedPhotos.map(photo => ({
-        ...photo,
+        id: photo.id,
+        dataUrl: photo.dataUrl,
+        timestamp: photo.timestamp instanceof Date ? photo.timestamp.toISOString() : photo.timestamp,
+        studentId: photo.studentId,
+        studentName: photo.studentName,
         classId,
         type,
         savedAt: new Date().toISOString(),
       }))
       
-      localStorage.setItem("vus_photos", JSON.stringify([...existingPhotos, ...photosToSave]))
+      const allPhotos = [...existingPhotos, ...photosToSave]
+      localStorage.setItem("vus_photos", JSON.stringify(allPhotos))
+      
+      console.log("Saved photos:", photosToSave.length, "Total:", allPhotos.length)
       
       toast({
         title: "✅ Photos Saved!",
         description: `${capturedPhotos.length} photo(s) saved successfully`,
       })
       
-      setTimeout(() => {
-        router.push(`/classes/${classId}?tab=files`)
-      }, 1000)
+      // Navigate back to class files tab
+      router.push(`/classes/${classId}?tab=files`)
     } catch (error) {
       console.error("Error saving photos:", error)
       toast({
