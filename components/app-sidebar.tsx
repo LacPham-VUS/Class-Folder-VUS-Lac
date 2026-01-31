@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { useState, useEffect } from "react"
 import {
   LayoutDashboard,
   Users,
@@ -17,7 +18,11 @@ import {
   Calendar,
   ClipboardList,
   Book,
+  Menu,
+  X,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 interface NavItem {
   title: string
@@ -83,24 +88,24 @@ const navItems: NavItem[] = [
   },
 ]
 
-export function AppSidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const { currentRole } = useAuth()
 
   const filteredNavItems = navItems.filter((item) => item.roles.includes(currentRole))
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-card sidebar-gradient shadow-sm">
-      <div className="border-b border-border/20 p-6 bg-white relative">
+    <div className="flex h-full flex-col">
+      <div className="border-b border-border/20 p-4 md:p-6 bg-white relative">
         {/* Logo */}
-        <div className="mb-3 flex items-center justify-center">
-          <Image src="/vus-logo.png" alt="VUS Logo" width={180} height={60} className="object-contain" />
+        <div className="mb-2 md:mb-3 flex items-center justify-center">
+          <Image src="/vus-logo.png" alt="VUS Logo" width={140} height={47} className="object-contain md:w-[180px]" />
         </div>
 
-        {/* Title section with clean design */}
+        {/* Title section */}
         <div className="text-center space-y-1">
-          <h2 className="text-sm font-bold text-primary tracking-wide uppercase">Digital Class Folder</h2>
-          <div className="flex items-center justify-center gap-2">
+          <h2 className="text-xs md:text-sm font-bold text-primary tracking-wide uppercase">Digital Class Folder</h2>
+          <div className="hidden md:flex items-center justify-center gap-2">
             <div className="h-px w-8 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
               Education Management
@@ -110,10 +115,9 @@ export function AppSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 p-2 md:p-4 overflow-y-auto">
         {filteredNavItems.map((item) => {
           const Icon = item.icon
-          // Check if current path matches exactly or is a child route
           const isExactMatch = pathname === item.href
           const isChildRoute = item.href !== "/" && pathname.startsWith(item.href + "/")
           const isActive = isExactMatch || isChildRoute
@@ -122,8 +126,9 @@ export function AppSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
-                "group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 md:px-4 md:py-3 text-sm font-medium transition-all duration-200",
                 isActive
                   ? "bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/30 scale-[1.02]"
                   : "text-muted-foreground hover:bg-gradient-to-r hover:from-secondary/80 hover:to-secondary/60 hover:text-foreground hover:scale-[1.01]",
@@ -133,18 +138,52 @@ export function AppSidebar() {
                 "h-5 w-5 shrink-0 transition-transform duration-200",
                 isActive ? "scale-110" : "group-hover:scale-105"
               )} />
-              <span>{item.title}</span>
+              <span className="truncate">{item.title}</span>
             </Link>
           )
         })}
       </nav>
 
-      <div className="border-t border-border/50 p-4 bg-white/30 backdrop-blur-sm">
+      <div className="border-t border-border/50 p-3 md:p-4 bg-white/30 backdrop-blur-sm">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
           <span className="font-medium">{currentRole}</span>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Mobile Sidebar với Sheet
+export function MobileSidebar() {
+  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+
+  // Đóng sidebar khi route thay đổi
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-6 w-6" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-72 p-0 sidebar-gradient">
+        <SidebarContent onNavigate={() => setOpen(false)} />
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// Desktop Sidebar
+export function AppSidebar() {
+  return (
+    <div className="hidden md:flex h-full w-64 flex-col border-r bg-card sidebar-gradient shadow-sm">
+      <SidebarContent />
     </div>
   )
 }

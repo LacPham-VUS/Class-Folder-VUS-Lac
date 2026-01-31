@@ -5,7 +5,7 @@ import type React from "react"
 import { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar, MobileSidebar } from "@/components/app-sidebar"
 import { AppHeader } from "@/components/app-header"
 import { Breadcrumb } from "@/components/breadcrumb"
 
@@ -15,18 +15,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
 
   useEffect(() => {
-    // Only redirect after loading is complete
     if (!isLoading && !isAuthenticated && pathname !== "/login") {
       router.push("/login")
     }
   }, [isAuthenticated, isLoading, pathname, router])
 
-  // Don't show layout on login page
   if (pathname === "/login") {
     return <>{children}</>
   }
 
-  // Show loading spinner while checking authentication
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -38,19 +35,32 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Show loading or redirect for unauthenticated users
   if (!isAuthenticated) {
     return null
   }
 
-  // Show authenticated layout
   return (
     <div className="flex h-screen">
+      {/* Desktop Sidebar */}
       <AppSidebar />
+      
       <div className="flex flex-1 flex-col overflow-hidden">
-        <AppHeader />
+        {/* Header với Mobile Menu */}
+        <header className="flex h-14 md:h-16 items-center gap-2 border-b bg-card px-3 md:px-6">
+          {/* Mobile Menu Button */}
+          <MobileSidebar />
+          
+          {/* Header Content */}
+          <div className="flex-1">
+            <AppHeader />
+          </div>
+        </header>
+        
+        {/* Breadcrumb - responsive */}
         <Breadcrumb />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-3 md:p-6">{children}</main>
       </div>
     </div>
   )

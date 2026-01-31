@@ -108,45 +108,65 @@ export function Breadcrumb() {
       href: currentPath
     })
   })
-
   // Don't show breadcrumb on homepage
   if (pathname === "/") {
     return null
   }
 
+  // Trên mobile, chỉ hiển thị item cuối cùng
+  const displayItems = breadcrumbItems.slice(1)
+  const lastItem = displayItems[displayItems.length - 1]
+
   return (
-    <nav className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-muted/30 via-muted/20 to-muted/30 border-b border-border/50 text-sm backdrop-blur-sm">
+    <nav className="flex items-center gap-1.5 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gradient-to-r from-muted/30 via-muted/20 to-muted/30 border-b border-border/50 text-xs md:text-sm backdrop-blur-sm overflow-x-auto">
       <Link 
         href="/"
-        className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors group"
+        className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors group shrink-0"
       >
-        <Home className="h-4 w-4 group-hover:scale-110 transition-transform" />
+        <Home className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover:scale-110 transition-transform" />
       </Link>
       
-      {breadcrumbItems.slice(1).map((item, index) => {
-        const isLast = index === breadcrumbItems.length - 2
-        
-        return (
-          <div key={item.href} className="flex items-center gap-2">
-            <ChevronRight className="h-4 w-4 text-muted-foreground/40" />
-            {isLast ? (
-              <span className="font-semibold text-foreground bg-primary/10 px-2 py-1 rounded-md">
-                {item.label}
-              </span>
-            ) : (
-              <Link
-                href={item.href}
-                className={cn(
-                  "text-muted-foreground hover:text-primary transition-colors px-2 py-1 rounded-md",
-                  "hover:bg-primary/5 hover:underline underline-offset-4"
-                )}
-              >
-                {item.label}
-              </Link>
-            )}
-          </div>
-        )
-      })}
+      {/* Mobile: chỉ hiện item cuối */}
+      <div className="flex md:hidden items-center gap-1.5">
+        {displayItems.length > 1 && (
+          <>
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40" />
+            <span className="text-muted-foreground">...</span>
+          </>
+        )}
+        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40" />
+        <span className="font-semibold text-foreground bg-primary/10 px-1.5 py-0.5 rounded-md truncate max-w-[150px]">
+          {lastItem?.label}
+        </span>
+      </div>
+
+      {/* Desktop: hiện đầy đủ */}
+      <div className="hidden md:flex items-center gap-2">
+        {displayItems.map((item, index) => {
+          const isLast = index === displayItems.length - 1
+          
+          return (
+            <div key={item.href} className="flex items-center gap-2">
+              <ChevronRight className="h-4 w-4 text-muted-foreground/40" />
+              {isLast ? (
+                <span className="font-semibold text-foreground bg-primary/10 px-2 py-1 rounded-md">
+                  {item.label}
+                </span>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "text-muted-foreground hover:text-primary transition-colors px-2 py-1 rounded-md",
+                    "hover:bg-primary/5 hover:underline underline-offset-4"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </nav>
   )
 }
