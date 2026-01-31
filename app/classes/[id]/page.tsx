@@ -15,7 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2 } from "lucide-react"
+import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2, Upload } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { use } from "react"
@@ -104,7 +104,23 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
   function loadPhotos() {
     try {
       const storedPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
-      const classPhotos = storedPhotos.filter((p: any) => p.classId === classId)
+      
+      // Migrate old data: convert photoType to type if needed
+      let needsMigration = false
+      const migratedPhotos = storedPhotos.map((p: any) => {
+        if (p.photoType && !p.type) {
+          needsMigration = true
+          return { ...p, type: p.photoType }
+        }
+        return p
+      })
+      
+      if (needsMigration) {
+        localStorage.setItem("vus_photos", JSON.stringify(migratedPhotos))
+        console.log("Migrated photos: converted photoType to type")
+      }
+      
+      const classPhotos = migratedPhotos.filter((p: any) => p.classId === classId)
       setPhotos(classPhotos)
       console.log("Loaded photos for class:", classId, "Count:", classPhotos.length)
     } catch (error) {
@@ -464,14 +480,22 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         </TabsContent>
 
         <TabsContent value="files" className="space-y-4">
-          {/* Take Photos Button */}
-          <div className="flex justify-end">
+          {/* Photo Action Buttons */}
+          <div className="flex flex-wrap gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/upload?classId=${classId}&type=class`)}
+              className="gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Upload ảnh
+            </Button>
             <Button
               onClick={() => setShowPhotoDialog(true)}
               className="gap-2"
             >
               <Camera className="h-4 w-4" />
-              Take Photos
+              Chụp ảnh
             </Button>
           </div>
 
