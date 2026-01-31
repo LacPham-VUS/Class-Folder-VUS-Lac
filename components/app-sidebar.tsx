@@ -113,20 +113,26 @@ export function AppSidebar() {
       <nav className="flex-1 space-y-1 p-4">
         {filteredNavItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href
+          // Check if current path matches exactly or is a child route
+          const isExactMatch = pathname === item.href
+          const isChildRoute = item.href !== "/" && pathname.startsWith(item.href + "/")
+          const isActive = isExactMatch || isChildRoute
 
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                "group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-primary scale-[1.02]"
-                  : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground hover:scale-[1.01]",
+                  ? "bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/30 scale-[1.02]"
+                  : "text-muted-foreground hover:bg-gradient-to-r hover:from-secondary/80 hover:to-secondary/60 hover:text-foreground hover:scale-[1.01]",
               )}
             >
-              <Icon className="h-5 w-5 shrink-0" />
+              <Icon className={cn(
+                "h-5 w-5 shrink-0 transition-transform duration-200",
+                isActive ? "scale-110" : "group-hover:scale-105"
+              )} />
               <span>{item.title}</span>
             </Link>
           )

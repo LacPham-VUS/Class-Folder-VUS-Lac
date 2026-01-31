@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AppHeader } from "@/components/app-header"
+import { Breadcrumb } from "@/components/breadcrumb"
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -48,6 +49,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AppHeader />
+        <Breadcrumb />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>

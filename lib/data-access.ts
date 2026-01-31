@@ -102,6 +102,10 @@ export async function getStudents() {
   return mockStudents
 }
 
+export async function getStudentById(studentId: string) {
+  return mockStudents.find((s) => s.id === studentId)
+}
+
 export async function getStudentsByClass(classId: string) {
   const enrollments = mockEnrollments.filter((e) => e.classId === classId && e.status === "Active")
   const studentIds = enrollments.map((e) => e.studentId)

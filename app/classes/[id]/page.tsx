@@ -15,10 +15,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart } from "lucide-react"
+import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { use } from "react"
+import { PhotoCaptureDialog } from "@/components/photo-dialog"
 
 export default function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -28,6 +29,7 @@ export default function ClassDetailPage({ params }: { params: Promise<{ id: stri
 
 function ClassDetailPageClient({ classId }: { classId: string }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [classData, setClassData] = useState<Class | null>(null)
   const [center, setCenter] = useState<Center | null>(null)
   const [sessions, setSessions] = useState<Session[]>([])
@@ -36,6 +38,11 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
   const [teacher, setTeacher] = useState<User | null>(null)
   const [classReports, setClassReports] = useState<ClassReport[]>([])
   const [loading, setLoading] = useState(true)
+  const [showPhotoDialog, setShowPhotoDialog] = useState(false)
+  const [photos, setPhotos] = useState<any[]>([])
+  
+  // Get active tab from URL or default to overview
+  const activeTab = searchParams.get("tab") || "overview"
 
   useEffect(() => {
     async function loadData() {
@@ -64,12 +71,25 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         const sessionIds = sessionsData.map((s) => s.id)
         const reports = mockClassReports.filter((r) => sessionIds.includes(r.sessionId))
         setClassReports(reports)
+        
+        // Load photos from localStorage
+        loadPhotos()
       } finally {
         setLoading(false)
       }
     }
     loadData()
   }, [classId, router])
+  
+  function loadPhotos() {
+    try {
+      const storedPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+      const classPhotos = storedPhotos.filter((p: any) => p.classId === classId)
+      setPhotos(classPhotos)
+    } catch (error) {
+      console.error("Error loading photos:", error)
+    }
+  }
 
   if (loading) {
     return (
@@ -86,6 +106,8 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
 
   const completedSessions = sessions.filter((s) => s.status === "Completed").length
   const openRequests = specialRequests.filter((r) => r.status === "Open" || r.status === "InProgress").length
+  const classPhotos = photos.filter((p: any) => p.type === "class")
+  const studentPhotos = photos.filter((p: any) => p.type === "student")
 
   return (
     <div className="space-y-6">
@@ -159,14 +181,21 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         </Card>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue={activeTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
           <TabsTrigger value="students">Students</TabsTrigger>
           <TabsTrigger value="reports">Class Reports</TabsTrigger>
           <TabsTrigger value="requests">Special Requests</TabsTrigger>
-          <TabsTrigger value="files">Files</TabsTrigger>
+          <TabsTrigger value="files">
+            Files
+            {photos.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {photos.length}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -388,20 +417,120 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         </TabsContent>
 
         <TabsContent value="files" className="space-y-4">
+          {/* Take Photos Button */}
+          <div className="flex justify-end">
+            <Button
+              onClick={() => setShowPhotoDialog(true)}
+              className="gap-2"
+            >
+              <Camera className="h-4 w-4" />
+              Take Photos
+            </Button>
+          </div>
+
+          {/* Class Photos */}
           <Card>
             <CardHeader>
-              <CardTitle>Course Files</CardTitle>
-              <CardDescription>Documents and materials for this class</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Class Photos</CardTitle>
+                  <CardDescription>Photos of class activities and group work</CardDescription>
+                </div>
+                <Badge variant="secondary">{classPhotos.length} photos</Badge>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-12">
-                <FolderOpen className="mb-4 h-12 w-12 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">No files uploaded yet</p>
+              {classPhotos.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Image className="mb-4 h-12 w-12 text-muted-foreground opacity-50" />
+                  <p className="text-sm text-muted-foreground">No class photos yet</p>
+                  <p className="text-xs text-muted-foreground">Click "Take Photos" to add class photos</p>
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {classPhotos.map((photo: any, index: number) => (
+                    <div
+                      key={photo.id}
+                      className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                    >
+                      <img
+                        src={photo.dataUrl}
+                        alt={`Class photo ${index + 1}`}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <p className="text-xs text-white">
+                            {new Date(photo.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Student Photos */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Student Photos</CardTitle>
+                  <CardDescription>Individual student photos</CardDescription>
+                </div>
+                <Badge variant="secondary">{studentPhotos.length} photos</Badge>
               </div>
+            </CardHeader>
+            <CardContent>
+              {studentPhotos.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Users className="mb-4 h-12 w-12 text-muted-foreground opacity-50" />
+                  <p className="text-sm text-muted-foreground">No student photos yet</p>
+                  <p className="text-xs text-muted-foreground">Click "Take Photos" to add student photos</p>
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {studentPhotos.map((photo: any, index: number) => {
+                    const student = students.find(s => s.id === photo.studentId)
+                    return (
+                      <div
+                        key={photo.id}
+                        className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                      >
+                        <img
+                          src={photo.dataUrl}
+                          alt={student?.fullName || `Student ${index + 1}`}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="absolute bottom-2 left-2 right-2">
+                            <p className="text-sm font-medium text-white">
+                              {student?.fullName}
+                            </p>
+                            <p className="text-xs text-white/80">
+                              {new Date(photo.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Photo Capture Dialog */}
+      <PhotoCaptureDialog
+        open={showPhotoDialog}
+        onOpenChange={setShowPhotoDialog}
+        classId={classId}
+        students={students}
+      />
     </div>
   )
 }
