@@ -338,50 +338,51 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground">Manage your account and application preferences</p>
         </div>
-      </div>
-
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-muted/50">
-          {tabs
-            .filter((tab) => tab.roles.includes(currentRole))
-            .map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {(() => {
-                  switch (tab.value) {
-                    case "profile":
-                      return <User className="mr-2 h-4 w-4" />
-                    case "notifications":
-                      return <Bell className="mr-2 h-4 w-4" />
-                    case "display":
-                      return <Monitor className="mr-2 h-4 w-4" />
-                    case "data":
-                      return <Database className="mr-2 h-4 w-4" />
-                    case "risk-config":
-                      return <Settings2 className="mr-2 h-4 w-4" />
-                    case "users":
-                      return <Users className="mr-2 h-4 w-4" />
-                    case "campuses":
-                      return <Building2 className="mr-2 h-4 w-4" />
-                    case "schedules":
-                      return <UserPlus className="mr-2 h-4 w-4" />
-                    case "teaching":
-                      return <Upload className="mr-2 h-4 w-4" />
-                    case "student-care":
-                      return <Download className="mr-2 h-4 w-4" />
-                    case "quality":
-                      return <AlertTriangle className="mr-2 h-4 w-4" />
-                    case "teachers":
-                      return <User className="mr-2 h-4 w-4" />
-                    case "tas":
-                      return <Users className="mr-2 h-4 w-4" />
-                    default:
-                      return null
-                  }
-                })()}
-                {tab.label}
-              </TabsTrigger>
-            ))}
-        </TabsList>
+      </div>      <Tabs defaultValue="profile" className="space-y-6">
+        <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0 pb-2">
+          <TabsList className="bg-muted/50 inline-flex w-max md:w-auto">
+            {tabs
+              .filter((tab) => tab.roles.includes(currentRole))
+              .map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value} className="text-xs md:text-sm whitespace-nowrap">
+                  {(() => {
+                    switch (tab.value) {
+                      case "profile":
+                        return <User className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "notifications":
+                        return <Bell className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "display":
+                        return <Monitor className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "data":
+                        return <Database className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "risk-config":
+                        return <Settings2 className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "users":
+                        return <Users className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "campuses":
+                        return <Building2 className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "schedules":
+                        return <UserPlus className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "teaching":
+                        return <Upload className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "student-care":
+                        return <Download className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "quality":
+                        return <AlertTriangle className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "teachers":
+                        return <User className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      case "tas":
+                        return <Users className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                      default:
+                        return null
+                    }
+                  })()}
+                  <span className="hidden xs:inline">{tab.label}</span>
+                  <span className="xs:hidden">{tab.label.split(' ')[0]}</span>
+                </TabsTrigger>
+              ))}
+          </TabsList>
+        </div>
 
         {/* Profile Tab */}
         <TabsContent value="profile">

@@ -325,16 +325,18 @@ export default function ReportsPage() {
       </div>
 
       <Tabs defaultValue="list" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="list">
-            <FileText className="h-4 w-4 mr-2" />
-            All Reports
-          </TabsTrigger>
-          <TabsTrigger value="analytics">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Analytics
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
+          <TabsList className="inline-flex w-max md:w-auto">
+            <TabsTrigger value="list" className="text-xs md:text-sm">
+              <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+              All Reports
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs md:text-sm">
+              <BarChart3 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="list" className="space-y-4">
           {/* Filters */}

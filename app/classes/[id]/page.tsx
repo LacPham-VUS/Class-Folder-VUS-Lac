@@ -182,21 +182,23 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
       </div>
 
       <Tabs defaultValue={activeTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="reports">Class Reports</TabsTrigger>
-          <TabsTrigger value="requests">Special Requests</TabsTrigger>
-          <TabsTrigger value="files">
-            Files
-            {photos.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {photos.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
+          <TabsList className="inline-flex w-max md:w-auto">
+            <TabsTrigger value="overview" className="text-xs md:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="sessions" className="text-xs md:text-sm">Sessions</TabsTrigger>
+            <TabsTrigger value="students" className="text-xs md:text-sm">Students</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs md:text-sm whitespace-nowrap">Class Reports</TabsTrigger>
+            <TabsTrigger value="requests" className="text-xs md:text-sm whitespace-nowrap">Special Requests</TabsTrigger>
+            <TabsTrigger value="files" className="text-xs md:text-sm">
+              Files
+              {photos.length > 0 && (
+                <Badge variant="secondary" className="ml-1.5 md:ml-2 text-[10px] md:text-xs px-1 md:px-1.5">
+                  {photos.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -451,18 +453,35 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                   {classPhotos.map((photo: any, index: number) => (
                     <div
                       key={photo.id}
-                      className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                      className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <img
-                        src={photo.dataUrl}
-                        alt={`Class photo ${index + 1}`}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="absolute bottom-2 left-2 right-2">
-                          <p className="text-xs text-white">
-                            {new Date(photo.timestamp).toLocaleString()}
-                          </p>
+                      {/* Photo */}
+                      <div className="aspect-square overflow-hidden">
+                        <img
+                          src={photo.dataUrl}
+                          alt={`Class photo ${index + 1}`}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      </div>
+                      
+                      {/* Photo Info */}
+                      <div className="p-2 bg-card border-t">
+                        <div className="flex items-center gap-2">
+                          <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                            <Camera className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium">Class Photo #{index + 1}</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {new Date(photo.timestamp).toLocaleDateString("vi-VN", {
+                                day: "2-digit",
+                                month: "2-digit", 
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -494,24 +513,39 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                   {studentPhotos.map((photo: any, index: number) => {
                     const student = students.find(s => s.id === photo.studentId)
+                    const displayName = photo.studentName || student?.fullName || `Student ${index + 1}`
                     return (
                       <div
                         key={photo.id}
-                        className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                        className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <img
-                          src={photo.dataUrl}
-                          alt={student?.fullName || `Student ${index + 1}`}
-                          className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="absolute bottom-2 left-2 right-2">
-                            <p className="text-sm font-medium text-white">
-                              {student?.fullName}
-                            </p>
-                            <p className="text-xs text-white/80">
-                              {new Date(photo.timestamp).toLocaleString()}
-                            </p>
+                        {/* Photo */}
+                        <div className="aspect-square overflow-hidden">
+                          <img
+                            src={photo.dataUrl}
+                            alt={displayName}
+                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          />
+                        </div>
+                        
+                        {/* Student Info - Always visible */}
+                        <div className="p-2 bg-card border-t">
+                          <div className="flex items-center gap-2">
+                            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                              <Users className="h-3 w-3 text-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium truncate">{displayName}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {new Date(photo.timestamp).toLocaleDateString("vi-VN", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit"
+                                })}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -318,24 +318,32 @@ function ReportDetailClient({ reportId }: { reportId: string }) {
 
       {/* Main Content */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">
-            <FileText className="h-4 w-4 mr-2" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="attendance">
-            <Users className="h-4 w-4 mr-2" />
-            Attendance ({attendanceStats.present}/{attendanceStats.total})
-          </TabsTrigger>
-          <TabsTrigger value="comments">
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Comments ({notesStats.total})
-          </TabsTrigger>
-          <TabsTrigger value="checklist">
-            <CheckSquare className="h-4 w-4 mr-2" />
-            Checklist
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
+          <TabsList className="inline-flex w-max md:w-auto">
+            <TabsTrigger value="overview" className="text-xs md:text-sm">
+              <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+              <span className="hidden sm:inline">Overview</span>
+              <span className="sm:hidden">Info</span>
+            </TabsTrigger>
+            <TabsTrigger value="attendance" className="text-xs md:text-sm">
+              <Users className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+              <span className="hidden sm:inline">Attendance</span>
+              <span className="sm:hidden">Attend</span>
+              <span className="ml-1 text-[10px] md:text-xs">({attendanceStats.present}/{attendanceStats.total})</span>
+            </TabsTrigger>
+            <TabsTrigger value="comments" className="text-xs md:text-sm">
+              <MessageSquare className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+              <span className="hidden sm:inline">Comments</span>
+              <span className="sm:hidden">Notes</span>
+              <span className="ml-1 text-[10px] md:text-xs">({notesStats.total})</span>
+            </TabsTrigger>
+            <TabsTrigger value="checklist" className="text-xs md:text-sm">
+              <CheckSquare className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+              <span className="hidden sm:inline">Checklist</span>
+              <span className="sm:hidden">Check</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">

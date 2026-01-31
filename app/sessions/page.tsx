@@ -131,14 +131,14 @@ export default function SessionsPage() {
             <div className="text-2xl font-bold">{completedSessions.length}</div>
           </CardContent>
         </Card>
-      </div>
-
-      <Tabs defaultValue="upcoming" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="all">All</TabsTrigger>
-        </TabsList>
+      </div>      <Tabs defaultValue="upcoming" className="space-y-4">
+        <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
+          <TabsList className="inline-flex w-max md:w-auto">
+            <TabsTrigger value="upcoming" className="text-xs md:text-sm">Upcoming</TabsTrigger>
+            <TabsTrigger value="completed" className="text-xs md:text-sm">Completed</TabsTrigger>
+            <TabsTrigger value="all" className="text-xs md:text-sm">All</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="upcoming" className="space-y-4">
           <Card>

@@ -49,11 +49,13 @@ export default function TemplatesPage() {
       </div>
 
       <Tabs defaultValue="snippets" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="snippets">Comment Snippets</TabsTrigger>
-          <TabsTrigger value="checklists">Daily Checklists</TabsTrigger>
-          <TabsTrigger value="report-fields">Report Templates</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
+          <TabsList className="inline-flex w-max md:w-auto">
+            <TabsTrigger value="snippets" className="text-xs md:text-sm whitespace-nowrap">Comment Snippets</TabsTrigger>
+            <TabsTrigger value="checklists" className="text-xs md:text-sm whitespace-nowrap">Daily Checklists</TabsTrigger>
+            <TabsTrigger value="report-fields" className="text-xs md:text-sm whitespace-nowrap">Report Templates</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Comment Snippets Tab */}
         <TabsContent value="snippets" className="space-y-4">
