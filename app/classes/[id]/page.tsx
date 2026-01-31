@@ -15,11 +15,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image } from "lucide-react"
+import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { use } from "react"
 import { PhotoCaptureDialog } from "@/components/photo-dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -30,6 +41,7 @@ export default function ClassDetailPage({ params }: { params: Promise<{ id: stri
 function ClassDetailPageClient({ classId }: { classId: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { toast } = useToast()
   const [classData, setClassData] = useState<Class | null>(null)
   const [center, setCenter] = useState<Center | null>(null)
   const [sessions, setSessions] = useState<Session[]>([])
@@ -40,6 +52,7 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
   const [loading, setLoading] = useState(true)
   const [showPhotoDialog, setShowPhotoDialog] = useState(false)
   const [photos, setPhotos] = useState<any[]>([])
+  const [photoToDelete, setPhotoToDelete] = useState<string | null>(null)
   
   // Get active tab from URL or default to overview
   const activeTab = searchParams.get("tab") || "overview"
@@ -96,6 +109,30 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
       console.log("Loaded photos for class:", classId, "Count:", classPhotos.length)
     } catch (error) {
       console.error("Error loading photos:", error)
+    }
+  }
+
+  function deletePhoto(photoId: string) {
+    try {
+      const storedPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+      const updatedPhotos = storedPhotos.filter((p: any) => p.id !== photoId)
+      localStorage.setItem("vus_photos", JSON.stringify(updatedPhotos))
+      
+      // Update local state
+      setPhotos(prev => prev.filter(p => p.id !== photoId))
+      setPhotoToDelete(null)
+      
+      toast({
+        title: "🗑️ Photo Deleted",
+        description: "Photo has been removed successfully",
+      })
+    } catch (error) {
+      console.error("Error deleting photo:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete photo. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -464,12 +501,21 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                       className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-shadow"
                     >
                       {/* Photo */}
-                      <div className="aspect-square overflow-hidden">
+                      <div className="aspect-square overflow-hidden relative">
                         <img
                           src={photo.dataUrl}
                           alt={`Class photo ${index + 1}`}
                           className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
+                        {/* Delete Button */}
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                          onClick={() => setPhotoToDelete(photo.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                       
                       {/* Photo Info */}
@@ -528,12 +574,21 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                         className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-shadow"
                       >
                         {/* Photo */}
-                        <div className="aspect-square overflow-hidden">
+                        <div className="aspect-square overflow-hidden relative">
                           <img
                             src={photo.dataUrl}
                             alt={displayName}
                             className="h-full w-full object-cover transition-transform group-hover:scale-105"
                           />
+                          {/* Delete Button */}
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                            onClick={() => setPhotoToDelete(photo.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
                         
                         {/* Student Info - Always visible */}
@@ -573,6 +628,27 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         classId={classId}
         students={students}
       />
+
+      {/* Delete Photo Confirmation Dialog */}
+      <AlertDialog open={!!photoToDelete} onOpenChange={(open) => !open && setPhotoToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa ảnh này?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa ảnh này không? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => photoToDelete && deletePhoto(photoToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
