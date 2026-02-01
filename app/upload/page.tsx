@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, X, ArrowLeft, Trash2, Save, ImagePlus, Users, Image } from "lucide-react"
+import { Upload, X, ArrowLeft, Trash2, Save, ImagePlus, Users, Image, AlertCircle } from "lucide-react"
 import { getStudentsByClass } from "@/lib/data-access"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { useLanguage } from "@/lib/language-context"
 import { cn } from "@/lib/utils"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 
 interface UploadedPhoto {
   id: string
@@ -68,9 +70,7 @@ function UploadPageContent() {
       const studentsData = await getStudentsByClass(classId)
       setStudents(studentsData)
     }
-  }
-
-  // Process files from input or drag & drop
+  }  // Process files from input or drag & drop
   function processFiles(files: FileList | File[]) {
     // For student photos, must select student first
     if (photoType === "student" && !selectedStudentId) {
@@ -84,6 +84,7 @@ function UploadPageContent() {
 
     const selectedStudent = students.find(s => s.id === selectedStudentId)
 
+    // Process each file
     Array.from(files).forEach((file) => {
       if (!file.type.startsWith("image/")) return
 
@@ -102,10 +103,83 @@ function UploadPageContent() {
       reader.readAsDataURL(file)
     })
   }
-
   function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files
     if (!files || files.length === 0) return
+    
+    // Check limits BEFORE processing
+    const MAX_CLASS_PHOTOS = 20
+    const MAX_STUDENT_PHOTOS = 6
+    const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+    
+    if (photoType === "class") {
+      const classPhotos = existingPhotos.filter((p: any) => p.classId === classId && p.type === "class")
+      const currentCount = classPhotos.length + uploadedPhotos.length
+      const remainingSlots = MAX_CLASS_PHOTOS - currentCount
+      const newFilesCount = files.length
+        if (remainingSlots <= 0) {
+        toast({
+          title: "⚠️ Đã đạt giới hạn",
+          description: `Lớp học này đã có ${currentCount}/${MAX_CLASS_PHOTOS} ảnh. Không thể upload thêm.`,
+          variant: "warning",
+          duration: 5000,
+        })
+        // Reset input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+        return
+      }
+      
+      if (newFilesCount > remainingSlots) {
+        toast({
+          title: "⚠️ Vượt quá giới hạn",
+          description: `Chỉ có thể upload thêm ${remainingSlots} ảnh nữa (đã có ${currentCount}/${MAX_CLASS_PHOTOS}). Bạn đã chọn ${newFilesCount} ảnh.`,
+          variant: "warning",
+          duration: 6000,
+        })
+        // Reset input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+        return
+      }
+    } else if (photoType === "student" && selectedStudentId) {
+      const studentPhotos = existingPhotos.filter((p: any) => p.studentId === selectedStudentId && p.type === "student")
+      const currentStudentPhotosInSession = uploadedPhotos.filter(p => p.studentId === selectedStudentId).length
+      const currentCount = studentPhotos.length + currentStudentPhotosInSession
+      const remainingSlots = MAX_STUDENT_PHOTOS - currentCount
+      const newFilesCount = files.length
+        if (remainingSlots <= 0) {
+        const student = students.find(s => s.id === selectedStudentId)
+        toast({
+          title: "⚠️ Đã đạt giới hạn",
+          description: `${student?.fullName || 'Học sinh này'} đã có ${currentCount}/${MAX_STUDENT_PHOTOS} ảnh. Không thể upload thêm.`,
+          variant: "warning",
+          duration: 5000,
+        })
+        // Reset input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+        return
+      }
+      
+      if (newFilesCount > remainingSlots) {
+        const student = students.find(s => s.id === selectedStudentId)
+        toast({
+          title: "⚠️ Vượt quá giới hạn",
+          description: `${student?.fullName || 'Học sinh này'} chỉ có thể upload thêm ${remainingSlots} ảnh nữa (đã có ${currentCount}/${MAX_STUDENT_PHOTOS}). Bạn đã chọn ${newFilesCount} ảnh.`,
+          variant: "warning",
+          duration: 6000,
+        })
+        // Reset input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+        return
+      }
+    }
     
     processFiles(files)
 
@@ -134,7 +208,6 @@ function UploadPageContent() {
     e.preventDefault()
     e.stopPropagation()
   }
-
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     e.stopPropagation()
@@ -151,14 +224,74 @@ function UploadPageContent() {
     }
 
     const files = e.dataTransfer.files
-    if (files && files.length > 0) {
-      processFiles(files)
+    if (!files || files.length === 0) return
+    
+    // Check limits BEFORE processing
+    const MAX_CLASS_PHOTOS = 20
+    const MAX_STUDENT_PHOTOS = 6
+    const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+    
+    if (photoType === "class") {
+      const classPhotos = existingPhotos.filter((p: any) => p.classId === classId && p.type === "class")
+      const currentCount = classPhotos.length + uploadedPhotos.length
+      const remainingSlots = MAX_CLASS_PHOTOS - currentCount
+      const newFilesCount = files.length
       
-      toast({
-        title: "📸 " + t("photos.photosAdded"),
-        description: `${files.length} ${t("photos.photosSelected").toLowerCase()}`,
-      })
+      if (remainingSlots <= 0) {
+        toast({
+          title: "⚠️ Đã đạt giới hạn",
+          description: `Lớp học này đã có ${currentCount}/${MAX_CLASS_PHOTOS} ảnh. Không thể upload thêm.`,
+          variant: "destructive",
+          duration: 5000,
+        })
+        return
+      }
+      
+      if (newFilesCount > remainingSlots) {
+        toast({
+          title: "⚠️ Vượt quá giới hạn",
+          description: `Chỉ có thể upload thêm ${remainingSlots} ảnh nữa (đã có ${currentCount}/${MAX_CLASS_PHOTOS}). Bạn đã thả ${newFilesCount} ảnh.`,
+          variant: "destructive",
+          duration: 6000,
+        })
+        return
+      }
+    } else if (photoType === "student" && selectedStudentId) {
+      const studentPhotos = existingPhotos.filter((p: any) => p.studentId === selectedStudentId && p.type === "student")
+      const currentStudentPhotosInSession = uploadedPhotos.filter(p => p.studentId === selectedStudentId).length
+      const currentCount = studentPhotos.length + currentStudentPhotosInSession
+      const remainingSlots = MAX_STUDENT_PHOTOS - currentCount
+      const newFilesCount = files.length
+      
+      if (remainingSlots <= 0) {
+        const student = students.find(s => s.id === selectedStudentId)
+        toast({
+          title: "⚠️ Đã đạt giới hạn",
+          description: `${student?.fullName || 'Học sinh này'} đã có ${currentCount}/${MAX_STUDENT_PHOTOS} ảnh. Không thể upload thêm.`,
+          variant: "destructive",
+          duration: 5000,
+        })
+        return
+      }
+      
+      if (newFilesCount > remainingSlots) {
+        const student = students.find(s => s.id === selectedStudentId)
+        toast({
+          title: "⚠️ Vượt quá giới hạn",
+          description: `${student?.fullName || 'Học sinh này'} chỉ có thể upload thêm ${remainingSlots} ảnh nữa (đã có ${currentCount}/${MAX_STUDENT_PHOTOS}). Bạn đã thả ${newFilesCount} ảnh.`,
+          variant: "destructive",
+          duration: 6000,
+        })
+        return
+      }
     }
+    
+    processFiles(files)
+    
+    toast({
+      title: "📸 " + t("photos.photosAdded"),
+      description: `${files.length} ${t("photos.photosSelected").toLowerCase()}`,
+    })
   }
 
   function deletePhoto(photoId: string) {
@@ -209,10 +342,31 @@ function UploadPageContent() {
       })
     } finally {
       setIsSaving(false)
-    }
-  }
+    }  }
 
   const selectedStudent = students.find(s => s.id === selectedStudentId)
+  
+  // Calculate remaining slots
+  const MAX_CLASS_PHOTOS = 20
+  const MAX_STUDENT_PHOTOS = 6
+  const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+  
+  let remainingSlots = 0
+  let totalUsed = 0
+  let maxLimit = 0
+  
+  if (photoType === "class") {
+    const classPhotos = existingPhotos.filter((p: any) => p.classId === classId && p.type === "class")
+    totalUsed = classPhotos.length + uploadedPhotos.length
+    maxLimit = MAX_CLASS_PHOTOS
+    remainingSlots = maxLimit - totalUsed
+  } else if (photoType === "student" && selectedStudentId) {
+    const studentPhotos = existingPhotos.filter((p: any) => p.studentId === selectedStudentId && p.type === "student")
+    const currentStudentPhotosInSession = uploadedPhotos.filter(p => p.studentId === selectedStudentId).length
+    totalUsed = studentPhotos.length + currentStudentPhotosInSession
+    maxLimit = MAX_STUDENT_PHOTOS
+    remainingSlots = maxLimit - totalUsed
+  }
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-b from-background to-muted/30">
@@ -274,8 +428,7 @@ function UploadPageContent() {
 
       <div className="flex flex-1 flex-col md:flex-row gap-3 md:gap-4 overflow-hidden p-3 md:p-4">
         {/* Upload Area */}
-        <div className="flex flex-1 flex-col gap-3 md:gap-4 min-h-0">
-          {/* Student selector for student photos */}
+        <div className="flex flex-1 flex-col gap-3 md:gap-4 min-h-0">          {/* Student selector for student photos */}
           {photoType === "student" && (            <Card className="p-3 md:p-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t("photos.selectStudent")}</label>
@@ -297,6 +450,38 @@ function UploadPageContent() {
                 )}
               </div>
             </Card>
+          )}
+          
+          {/* Photo Limit Info */}
+          {(photoType === "class" || (photoType === "student" && selectedStudentId)) && (
+            <Alert 
+              variant={remainingSlots <= 0 ? "destructive" : remainingSlots <= 3 ? "default" : "default"}
+              className={remainingSlots <= 0 ? "" : remainingSlots <= 3 ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-900/10" : "border-blue-500 bg-blue-50 dark:bg-blue-900/10"}
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <div>
+                  {photoType === "class" ? (
+                    <span className="font-medium">
+                      Ảnh lớp học: {totalUsed}/{maxLimit}
+                    </span>
+                  ) : (
+                    <span className="font-medium">
+                      Ảnh của {selectedStudent?.fullName}: {totalUsed}/{maxLimit}
+                    </span>
+                  )}
+                  {remainingSlots > 0 ? (
+                    <span className="ml-2 text-sm">
+                      • Còn có thể upload <Badge variant="secondary" className="ml-1">{remainingSlots}</Badge> ảnh
+                    </span>
+                  ) : (
+                    <span className="ml-2 text-sm text-destructive font-medium">
+                      • Đã đạt giới hạn tối đa
+                    </span>
+                  )}
+                </div>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* Upload Zone */}
@@ -409,16 +594,15 @@ function UploadPageContent() {
                   </div>
 
                   <div className="flex-1 overflow-y-auto">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {uploadedPhotos.map((photo, index) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">                      {uploadedPhotos.map((photo, index) => (
                         <div
                           key={photo.id}
-                          className="group relative aspect-video overflow-hidden rounded-lg border bg-muted shadow-sm"
+                          className="group relative aspect-video overflow-hidden rounded-lg border bg-white dark:bg-gray-900 shadow-sm"
                         >
                           <img
                             src={photo.dataUrl}
                             alt={photo.fileName}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain"
                           />
                           
                           {/* Delete button - Always visible on mobile */}
@@ -459,16 +643,15 @@ function UploadPageContent() {
                 <h3 className="text-xs font-semibold">{t("photos.quickPreview")}</h3>
                 <span className="text-xs text-muted-foreground">({uploadedPhotos.length})</span>
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {uploadedPhotos.map((photo, index) => (
+              <div className="flex gap-2 overflow-x-auto pb-2">                {uploadedPhotos.map((photo, index) => (
                   <div
                     key={photo.id}
-                    className="relative flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 border-primary/30"
+                    className="relative flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 border-primary/30 bg-white dark:bg-gray-900"
                   >
                     <img
                       src={photo.dataUrl}
                       alt={`Photo ${index + 1}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain"
                     />
                     <div className="absolute left-0.5 bottom-0.5 bg-black/70 text-white text-[8px] px-1 rounded">
                       #{index + 1}

@@ -293,4 +293,74 @@
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
   }
+
+  /* Toast animations */
+  @keyframes toast-slide-in-right {
+    from {
+      transform: translateX(calc(100% + 1rem));
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes toast-slide-out-right {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(calc(100% + 1rem));
+      opacity: 0;
+    }
+  }
+
+  @keyframes toast-shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  /* Toast icon bounce */
+  @keyframes toast-icon-bounce {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.15);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Progress bar animation for toast */
+  @keyframes toast-progress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
+  /* Additional toast utility animations */
+  .animate-toast-icon-bounce {
+    animation: toast-icon-bounce 0.5s ease-out;
+  }
+
+  .animate-toast-shake {
+    animation: toast-shake 0.5s ease-out;
+  }
 }
+

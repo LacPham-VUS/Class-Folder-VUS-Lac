@@ -125,7 +125,6 @@ function CameraPageContent() {
       startCamera()
     }
   }, [facingMode])
-
   function capturePhoto() {
     if (!videoRef.current || !canvasRef.current) return
     
@@ -137,6 +136,41 @@ function CameraPageContent() {
         variant: "destructive",
       })
       return
+    }
+
+    // Check photo limits
+    const MAX_CLASS_PHOTOS = 20
+    const MAX_STUDENT_PHOTOS = 6
+    
+    if (type === "class") {
+      // Get existing class photos for this class
+      const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+      const classPhotos = existingPhotos.filter((p: any) => p.classId === classId && p.type === "class")
+      const totalCount = classPhotos.length + capturedPhotos.length
+        if (totalCount >= MAX_CLASS_PHOTOS) {
+        toast({
+          title: "⚠️ Đã đạt giới hạn",
+          description: `Chỉ có thể chụp tối đa ${MAX_CLASS_PHOTOS} ảnh lớp học. Hiện có ${classPhotos.length} ảnh đã lưu, ${capturedPhotos.length} ảnh đang chụp.`,
+          variant: "warning",
+        })
+        return
+      }
+    } else if (type === "student" && selectedStudentId) {
+      // Get existing student photos for this student
+      const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+      const studentPhotos = existingPhotos.filter((p: any) => p.studentId === selectedStudentId && p.type === "student")
+      const currentSessionPhotos = capturedPhotos.filter(p => p.studentId === selectedStudentId)
+      const totalCount = studentPhotos.length + currentSessionPhotos.length
+      
+      if (totalCount >= MAX_STUDENT_PHOTOS) {
+        const student = students.find(s => s.id === selectedStudentId)
+        toast({
+          title: "⚠️ Đã đạt giới hạn",
+          description: `Mỗi học sinh chỉ có thể có tối đa ${MAX_STUDENT_PHOTOS} ảnh. ${student?.fullName || 'Học sinh này'} hiện có ${studentPhotos.length} ảnh đã lưu.`,
+          variant: "warning",
+        })
+        return
+      }
     }
 
     // Show flash effect
@@ -356,8 +390,7 @@ function CameraPageContent() {
             <Trash2 className="h-4 w-4 mr-2" />
             Xóa ảnh
           </Button>
-          
-          {/* Fullscreen Image with Zoom */}
+            {/* Fullscreen Image with Zoom */}
           <div 
             className="overflow-auto max-h-[90vh] max-w-[95vw] flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
@@ -365,10 +398,12 @@ function CameraPageContent() {
             <img
               src={fullscreenPhoto.dataUrl}
               alt={fullscreenPhoto.studentName || "Class Photo"}
-              className="rounded-lg shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing"
+              className="rounded-lg shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing object-contain"
               style={{ 
                 transform: `scale(${zoomLevel})`,
-                transformOrigin: 'center center'
+                transformOrigin: 'center center',
+                maxWidth: '90vw',
+                maxHeight: '85vh'
               }}
               draggable={false}
             />
@@ -540,16 +575,15 @@ function CameraPageContent() {
                 </Button>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {capturedPhotos.map((photo, index) => (
-                  <div
+                {capturedPhotos.map((photo, index) => (                  <div
                     key={photo.id}
-                    className="group relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 cursor-pointer hover:border-primary/50 active:border-primary active:scale-95 transition-all"
+                    className="group relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 cursor-pointer hover:border-primary/50 active:border-primary active:scale-95 transition-all bg-white dark:bg-gray-900"
                     onClick={() => setFullscreenPhoto(photo)}
                   >
                     <img
                       src={photo.dataUrl}
                       alt={`Photo ${index + 1}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain"
                     />
                     {/* Zoom icon - Always visible on mobile */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">

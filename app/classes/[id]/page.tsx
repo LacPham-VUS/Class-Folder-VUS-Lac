@@ -22,6 +22,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { use } from "react"
 import { PhotoCaptureDialog } from "@/components/photo-dialog"
 import { useLanguage } from "@/lib/language-context"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -232,6 +233,11 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
   const openRequests = specialRequests.filter((r) => r.status === "Open" || r.status === "InProgress").length
   const classPhotos = photos.filter((p: any) => p.type === "class")
   const studentPhotos = photos.filter((p: any) => p.type === "student")
+  
+  // Photo limits
+  const MAX_CLASS_PHOTOS = 20
+  const MAX_STUDENT_PHOTOS_PER_STUDENT = 6
+  const isClassPhotosLimitReached = classPhotos.length >= MAX_CLASS_PHOTOS
 
   return (
     <div className="space-y-6">
@@ -340,10 +346,12 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
             <img
               src={fullscreenPhoto.dataUrl}
               alt={fullscreenPhoto.studentName || "Class Photo"}
-              className="rounded-lg shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing"
+              className="rounded-lg shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing object-contain"
               style={{ 
                 transform: `scale(${zoomLevel})`,
-                transformOrigin: 'center center'
+                transformOrigin: 'center center',
+                maxWidth: '90vw',
+                maxHeight: '85vh'
               }}
               draggable={false}
             />
@@ -1027,6 +1035,16 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         </TabsContent>
 
         <TabsContent value="files" className="space-y-4">
+          {/* Photo Limit Warning */}
+          {isClassPhotosLimitReached && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                ⚠️ Đã đạt giới hạn {MAX_CLASS_PHOTOS} ảnh lớp học. Vui lòng xóa ảnh cũ trước khi thêm ảnh mới.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           {/* Photo Action Buttons */}
           <div className="flex flex-wrap gap-2 justify-end">
             <Button
@@ -1040,15 +1058,37 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.push(`/upload?classId=${classId}&type=class`)}
+              onClick={() => {
+                if (isClassPhotosLimitReached) {
+                  toast({
+                    title: "⚠️ Đã đạt giới hạn",
+                    description: `Bạn chỉ có thể upload tối đa ${MAX_CLASS_PHOTOS} ảnh lớp học`,
+                    variant: "destructive"
+                  })
+                  return
+                }
+                router.push(`/upload?classId=${classId}&type=class`)
+              }}
               className="gap-2"
+              disabled={isClassPhotosLimitReached}
             >
               <Upload className="h-4 w-4" />
               {t("photos.uploadPhoto")}
             </Button>
             <Button
-              onClick={() => setShowPhotoDialog(true)}
+              onClick={() => {
+                if (isClassPhotosLimitReached) {
+                  toast({
+                    title: "⚠️ Đã đạt giới hạn",
+                    description: `Bạn chỉ có thể chụp tối đa ${MAX_CLASS_PHOTOS} ảnh lớp học`,
+                    variant: "destructive"
+                  })
+                  return
+                }
+                setShowPhotoDialog(true)
+              }}
               className="gap-2"
+              disabled={isClassPhotosLimitReached}
             >
               <Camera className="h-4 w-4" />
               {t("photos.takePhoto")}
@@ -1063,7 +1103,13 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                   <CardTitle>{t("photos.classPhotos")}</CardTitle>
                   <CardDescription>{t("photos.classPhotosDesc")}</CardDescription>
                 </div>
-                <Badge variant="secondary">{classPhotos.length} {t("photos.photosCount")}</Badge>
+                <Badge 
+                  variant={isClassPhotosLimitReached ? "destructive" : "secondary"}
+                  className="gap-1"
+                >
+                  {classPhotos.length}/{MAX_CLASS_PHOTOS}
+                  {isClassPhotosLimitReached && " ⚠️"}
+                </Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -1082,11 +1128,11 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                       onClick={() => setFullscreenPhoto(photo)}
                     >
                       {/* Photo */}
-                      <div className="aspect-square overflow-hidden relative">
+                      <div className="aspect-[4/3] overflow-hidden relative bg-white dark:bg-gray-900">
                         <img
                           src={photo.dataUrl}
                           alt={`Class photo ${index + 1}`}
-                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          className="h-full w-full object-contain transition-transform group-hover:scale-105"
                         />
                         {/* Zoom overlay on hover/tap */}
                         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 md:transition-opacity flex items-center justify-center pointer-events-none">
@@ -1165,11 +1211,11 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                         onClick={() => setFullscreenPhoto(photo)}
                       >
                         {/* Photo */}
-                        <div className="aspect-square overflow-hidden relative">
+                        <div className="aspect-[4/3] overflow-hidden relative bg-white dark:bg-gray-900">
                           <img
                             src={photo.dataUrl}
                             alt={displayName}
-                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                            className="h-full w-full object-contain transition-transform group-hover:scale-105"
                           />
                           {/* Zoom overlay on hover/tap */}
                           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 md:transition-opacity flex items-center justify-center pointer-events-none">

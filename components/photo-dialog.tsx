@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Camera, AlertCircle, CheckCircle2, Search, User } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useToast } from "@/hooks/use-toast"
 import type { Student } from "@/lib/types"
 
 interface Props {
@@ -24,6 +25,7 @@ export function PhotoCaptureDialog({ open, onOpenChange, classId, students }: Pr
   const [photoType, setPhotoType] = useState<"class" | "student">("class")
   const [selectedStudent, setSelectedStudent] = useState("")
   const [search, setSearch] = useState("")
+  const { toast } = useToast()
 
   useEffect(() => {
     if (open) {
@@ -50,17 +52,40 @@ export function PhotoCaptureDialog({ open, onOpenChange, classId, students }: Pr
       setHasCamera(false)
     }
   }
-
   function next() {
     if (step === "camera" && hasCamera) {
       setStep("type")
-    } else if (step === "type") {
-      if (photoType === "class") {
+    } else if (step === "type") {      if (photoType === "class") {
+        // Check class photo limit before going to camera
+        const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+        const classPhotos = existingPhotos.filter((p: any) => p.classId === classId && p.type === "class")
+        if (classPhotos.length >= 20) {
+          toast({
+            title: "⚠️ Đã đạt giới hạn",
+            description: "Lớp học này đã có 20 ảnh (tối đa). Vui lòng xóa ảnh cũ trước khi chụp thêm.",
+            variant: "warning"
+          })
+          onOpenChange(false)
+          return
+        }
         goToCamera()
       } else {
         setStep("student")
       }
     } else if (step === "student" && selectedStudent) {
+      // Check student photo limit before going to camera
+      const existingPhotos = JSON.parse(localStorage.getItem("vus_photos") || "[]")
+      const studentPhotos = existingPhotos.filter((p: any) => p.studentId === selectedStudent && p.type === "student")
+      if (studentPhotos.length >= 6) {
+        const student = students.find(s => s.id === selectedStudent)
+        toast({
+          title: "⚠️ Đã đạt giới hạn",
+          description: `${student?.fullName || 'Học sinh này'} đã có 6 ảnh (tối đa). Vui lòng xóa ảnh cũ trước khi chụp thêm.`,
+          variant: "warning"
+        })
+        onOpenChange(false)
+        return
+      }
       goToCamera()
     }
   }
