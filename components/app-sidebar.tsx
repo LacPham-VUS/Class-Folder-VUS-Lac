@@ -24,6 +24,8 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
+  Map,
+  GraduationCap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -85,6 +87,12 @@ const navItems: NavItem[] = [
     roles: ["TA", "Teacher", "ASA", "TQM", "SystemAdmin"],
   },
   {
+    title: "Floor Map",
+    href: "/floor-map",
+    icon: Map,
+    roles: ["TA", "Teacher", "ASA", "TQM", "SystemAdmin"],
+  },
+  {
     title: "Sessions",
     href: "/sessions",
     icon: Calendar,
@@ -95,6 +103,12 @@ const navItems: NavItem[] = [
     href: "/students",
     icon: Users,
     roles: ["TA", "Teacher", "ASA", "SystemAdmin"],
+  },
+  {
+    title: "Teachers",
+    href: "/teachers",
+    icon: GraduationCap,
+    roles: ["ASA", "TQM", "SystemAdmin"],
   },
   {
     title: "Feedback",
@@ -146,6 +160,7 @@ function SidebarContent({ onNavigate, collapsed = false }: { onNavigate?: () => 
     const titleMap: Record<string, string> = {
       "Dashboard": t("nav.dashboard"),
       "Classes": t("nav.classes"),
+      "Floor Map": t("nav.floorMap"),
       "Sessions": t("nav.sessions"),
       "Students": t("nav.students"),
       "Feedback": t("nav.feedback"),
