@@ -327,8 +327,7 @@ export const translations = {
       dark: "Tối",
       system: "Hệ thống",
     },
-    
-    // Auth
+      // Auth
     auth: {
       login: "Đăng nhập",
       logout: "Đăng xuất",
@@ -340,6 +339,11 @@ export const translations = {
       signOut: "Đăng xuất",
       welcome: "Chào mừng đến với VUS Digital Class Folder",
       selectRole: "Chọn vai trò để đăng nhập",
+      orContinueWith: "Hoặc tiếp tục với",
+      signInWithMicrosoft: "Đăng nhập bằng Microsoft",
+      demoAccounts: "Tài khoản Demo",
+      demoPassword: "Mật khẩu demo",
+      loggingIn: "Đang đăng nhập...",
     },
     
     // Roles
@@ -349,13 +353,37 @@ export const translations = {
       studentCare: "Chăm sóc học sinh",
       academicAdmin: "Quản lý học thuật",
       systemAdmin: "Quản trị hệ thống",
-    },
-      // Loading Screen
+    },    // Loading Screen
     loading: {
       workTogether: "Cùng Nhau Phát Triển",
       tagline: "Nơi giáo viên và học sinh kết nối, chia sẻ và tiến bộ mỗi ngày",
       pleaseWait: "Đang tải dữ liệu của bạn...",
       welcome: "Chào mừng trở lại!",
+    },
+    
+    // Profile
+    profile: {
+      viewProfile: "Xem hồ sơ",
+      editProfile: "Chỉnh sửa hồ sơ",
+      editCover: "Chỉnh sửa ảnh bìa",
+      about: "Giới thiệu",
+      myClasses: "Lớp của tôi",
+      activity: "Hoạt động",
+      achievements: "Thành tích",
+      contactInfo: "Thông tin liên hệ",
+      workInfo: "Thông tin công việc",
+      email: "Email",
+      phone: "Số điện thoại",
+      location: "Địa điểm",
+      joinedDate: "Ngày tham gia",
+      position: "Vị trí",
+      department: "Bộ phận",
+      classes: "Lớp học",
+      students: "Học sinh",
+      sessions: "Buổi học",
+      rating: "Đánh giá",
+      recentActivity: "Hoạt động gần đây",
+      noActivity: "Chưa có hoạt động nào",
     },
     
     // Messages
@@ -709,12 +737,16 @@ export const translations = {
       logout: "Logout",
       username: "Username",
       password: "Password",
-      rememberMe: "Remember me",
-      forgotPassword: "Forgot password?",
+      rememberMe: "Remember me",      forgotPassword: "Forgot password?",
       signIn: "Sign In",
       signOut: "Sign Out",
       welcome: "Welcome to VUS Digital Class Folder",
       selectRole: "Select a role to login",
+      orContinueWith: "Or continue with",
+      signInWithMicrosoft: "Sign in with Microsoft",
+      demoAccounts: "Demo Accounts",
+      demoPassword: "Demo password",
+      loggingIn: "Logging in...",
     },
     
     // Roles
@@ -724,13 +756,37 @@ export const translations = {
       studentCare: "Student Care",
       academicAdmin: "Academic Admin",
       systemAdmin: "System Admin",
-    },
-      // Loading Screen
+    },    // Loading Screen
     loading: {
       workTogether: "Work Together, Grow Together",
       tagline: "Where teachers and students connect, share, and progress every day",
       pleaseWait: "Loading your data...",
       welcome: "Welcome back!",
+    },
+    
+    // Profile
+    profile: {
+      viewProfile: "View Profile",
+      editProfile: "Edit Profile",
+      editCover: "Edit Cover Photo",
+      about: "About",
+      myClasses: "My Classes",
+      activity: "Activity",
+      achievements: "Achievements",
+      contactInfo: "Contact Information",
+      workInfo: "Work Information",
+      email: "Email",
+      phone: "Phone",
+      location: "Location",
+      joinedDate: "Joined Date",
+      position: "Position",
+      department: "Department",
+      classes: "Classes",
+      students: "Students",
+      sessions: "Sessions",
+      rating: "Rating",
+      recentActivity: "Recent Activity",
+      noActivity: "No activity yet",
     },
     
     // Messages

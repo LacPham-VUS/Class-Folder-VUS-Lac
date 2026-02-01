@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { useLanguage } from "@/lib/language-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,6 +18,7 @@ import { LoadingScreen } from "@/components/loading-screen"
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
+  const { t } = useLanguage()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -76,6 +78,31 @@ export default function LoginPage() {
     router.push("/")
   }
 
+  const handleMicrosoftLogin = async () => {
+    setIsLoading(true)
+    try {
+      // Simulate Microsoft SSO flow
+      // In production, this would redirect to Microsoft OAuth endpoint
+      toast.info(t("auth.loggingIn"))
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Mock successful login with Microsoft account
+      const success = await login("teacher1@vus.edu.vn", "demo123")
+      if (success) {
+        toast.success(t("messages.success"))
+        setShowLoadingScreen(true)
+      } else {
+        toast.error("Microsoft SSO failed")
+        setIsLoading(false)
+      }
+    } catch (error) {
+      toast.error("Microsoft SSO error")
+      setIsLoading(false)
+    }
+  }
+
   return (
     <>
       {showLoadingScreen && <LoadingScreen onComplete={handleLoadingComplete} />}
@@ -87,12 +114,12 @@ export default function LoginPage() {
             <Image src="/vus-logo.png" alt="VUS Logo" width={180} height={60} className="object-contain w-auto h-12 sm:h-16" />
           </div>
           <CardTitle className="text-xl sm:text-2xl font-bold">Digital Class Folder</CardTitle>
-          <CardDescription className="text-sm">Đăng nhập để quản lý lớp học của bạn</CardDescription>
+          <CardDescription className="text-sm">{t("auth.welcome")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("profile.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -104,7 +131,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Mật khẩu</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -132,16 +159,43 @@ export default function LoginPage() {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {isLoading ? t("auth.loggingIn") : t("auth.login")}
             </Button>
           </form>
 
+          {/* SSO Section */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Tài khoản Demo</span>
+              <span className="bg-card px-2 text-muted-foreground">{t("auth.orContinueWith")}</span>
+            </div>
+          </div>
+
+          {/* Microsoft SSO Button */}
+          <Button
+            variant="outline"
+            className="w-full h-11 gap-3 hover:bg-accent"
+            onClick={handleMicrosoftLogin}
+            disabled={isLoading}
+          >
+            <svg className="h-5 w-5" viewBox="0 0 23 23" fill="none">
+              <rect x="0" y="0" width="11" height="11" fill="#F25022"/>
+              <rect x="12" y="0" width="11" height="11" fill="#7FBA00"/>
+              <rect x="0" y="12" width="11" height="11" fill="#00A4EF"/>
+              <rect x="12" y="12" width="11" height="11" fill="#FFB900"/>
+            </svg>
+            <span className="font-medium">{t("auth.signInWithMicrosoft")}</span>
+          </Button>
+
+          {/* Demo Accounts Section */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">{t("auth.demoAccounts")}</span>
             </div>
           </div>
 
@@ -165,7 +219,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-xs text-muted-foreground">
-            Demo password: <span className="font-mono font-semibold">demo123</span>
+            {t("auth.demoPassword")}: <span className="font-mono font-semibold">demo123</span>
           </p>
         </CardContent>
       </Card>

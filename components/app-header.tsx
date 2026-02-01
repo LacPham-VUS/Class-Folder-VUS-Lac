@@ -12,16 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, User, LogOut, Search, Building2, GraduationCap } from "lucide-react"
+import { Bell, User, LogOut, Search, Building2, GraduationCap, UserCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { getCenters, getClasses } from "@/lib/data-access"
 import type { Center, Class } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { useLanguage } from "@/lib/language-context"
 
 export function AppHeader() {
   const router = useRouter()
+  const { t } = useLanguage()
   const {
     currentRole,
     currentUser,
@@ -223,9 +225,14 @@ export function AppHeader() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => router.push("/profile")}>
+              <UserCircle className="mr-2 h-4 w-4" />
+              <span>{t("profile.viewProfile")}</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Đăng xuất</span>
+              <span>{t("auth.logout")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
