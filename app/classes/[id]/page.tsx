@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2, Upload, BookOpen } from "lucide-react"
+import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2, Upload, BookOpen, ZoomIn, ZoomOut, RotateCcw, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { use } from "react"
@@ -59,6 +59,8 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
   const [photoToDelete, setPhotoToDelete] = useState<string | null>(null)
   const [showAIRecommendation, setShowAIRecommendation] = useState(false)
   const [generatingAI, setGeneratingAI] = useState(false)
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<any | null>(null)
+  const [zoomLevel, setZoomLevel] = useState(1)
   
   // Get active tab from URL or default to overview
   const activeTab = searchParams.get("tab") || "overview"
@@ -184,6 +186,127 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
 
   return (
     <div className="space-y-6">
+      {/* Fullscreen Photo Modal */}
+      {fullscreenPhoto && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center overflow-hidden"
+          onClick={() => {
+            setFullscreenPhoto(null)
+            setZoomLevel(1)
+          }}
+        >
+          {/* Close button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 text-white hover:bg-white/20 h-12 w-12 z-10"
+            onClick={(e) => {
+              e.stopPropagation()
+              setFullscreenPhoto(null)
+              setZoomLevel(1)
+            }}
+          >
+            <X className="h-8 w-8" />
+          </Button>
+          
+          {/* Photo info */}
+          <div className="absolute top-4 left-4 text-white z-10">
+            <p className="text-lg font-medium">
+              {fullscreenPhoto.studentName ? `📸 ${fullscreenPhoto.studentName}` : `🖼️ ${t("photos.classPhoto")}`}
+            </p>
+            <p className="text-sm text-white/70">
+              {new Date(fullscreenPhoto.timestamp).toLocaleString("vi-VN")}
+            </p>
+          </div>
+          
+          {/* Zoom Controls */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-black/60 rounded-full px-4 py-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 h-10 w-10"
+              onClick={(e) => {
+                e.stopPropagation()
+                setZoomLevel(prev => Math.max(0.5, prev - 0.25))
+              }}
+              disabled={zoomLevel <= 0.5}
+            >
+              <ZoomOut className="h-5 w-5" />
+            </Button>
+            
+            <span className="text-white text-sm font-medium min-w-[60px] text-center">
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 h-10 w-10"
+              onClick={(e) => {
+                e.stopPropagation()
+                setZoomLevel(prev => Math.min(3, prev + 0.25))
+              }}
+              disabled={zoomLevel >= 3}
+            >
+              <ZoomIn className="h-5 w-5" />
+            </Button>
+            
+            <div className="w-px h-6 bg-white/30 mx-1" />
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 h-10 w-10"
+              onClick={(e) => {
+                e.stopPropagation()
+                setZoomLevel(1)
+              }}
+              disabled={zoomLevel === 1}
+            >
+              <RotateCcw className="h-5 w-5" />
+            </Button>
+          </div>
+          
+          {/* Delete button */}
+          <Button
+            variant="destructive"
+            size="sm"
+            className="absolute bottom-4 right-4 z-10"
+            onClick={(e) => {
+              e.stopPropagation()
+              setPhotoToDelete(fullscreenPhoto.id)
+              setFullscreenPhoto(null)
+              setZoomLevel(1)
+            }}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            {t("common.delete")}
+          </Button>
+          
+          {/* Fullscreen Image with Zoom */}
+          <div 
+            className="overflow-auto max-h-[90vh] max-w-[95vw] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={fullscreenPhoto.dataUrl}
+              alt={fullscreenPhoto.studentName || "Class Photo"}
+              className="rounded-lg shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing"
+              style={{ 
+                transform: `scale(${zoomLevel})`,
+                transformOrigin: 'center center'
+              }}
+              draggable={false}
+            />
+          </div>
+          
+          {/* Hint text */}
+          <p className="absolute top-16 left-1/2 -translate-x-1/2 text-white/50 text-sm">
+            {t("photos.zoomHint") || "Nhấn vào nền hoặc X để đóng"}
+          </p>
+        </div>
+      )}
+
       <div className="flex items-center gap-4">
         <Link href="/classes">
           <Button variant="ghost" size="icon">
@@ -897,7 +1020,8 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                   {classPhotos.map((photo: any, index: number) => (
                     <div
                       key={photo.id}
-                      className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-shadow"
+                      className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-[0.98]"
+                      onClick={() => setFullscreenPhoto(photo)}
                     >
                       {/* Photo */}
                       <div className="aspect-square overflow-hidden relative">
@@ -906,12 +1030,21 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                           alt={`Class photo ${index + 1}`}
                           className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
+                        {/* Zoom overlay on hover/tap */}
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 md:transition-opacity flex items-center justify-center pointer-events-none">
+                          <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                            <ZoomIn className="h-6 w-6 text-white" />
+                          </div>
+                        </div>
                         {/* Delete Button - Always visible on mobile, hover on desktop */}
                         <Button
                           size="icon"
                           variant="destructive"
-                          className="absolute top-2 right-2 h-8 w-8 md:h-7 md:w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg"
-                          onClick={() => setPhotoToDelete(photo.id)}
+                          className="absolute top-2 right-2 h-8 w-8 md:h-7 md:w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setPhotoToDelete(photo.id)
+                          }}
                         >
                           <Trash2 className="h-4 w-4 md:h-3.5 md:w-3.5" />
                         </Button>
@@ -970,7 +1103,8 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                     return (
                       <div
                         key={photo.id}
-                        className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-shadow"
+                        className="group relative overflow-hidden rounded-lg border bg-muted shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-[0.98]"
+                        onClick={() => setFullscreenPhoto(photo)}
                       >
                         {/* Photo */}
                         <div className="aspect-square overflow-hidden relative">
@@ -979,12 +1113,21 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                             alt={displayName}
                             className="h-full w-full object-cover transition-transform group-hover:scale-105"
                           />
+                          {/* Zoom overlay on hover/tap */}
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 md:transition-opacity flex items-center justify-center pointer-events-none">
+                            <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                              <ZoomIn className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
                           {/* Delete Button - Always visible on mobile, hover on desktop */}
                           <Button
                             size="icon"
                             variant="destructive"
-                            className="absolute top-2 right-2 h-8 w-8 md:h-7 md:w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg"
-                            onClick={() => setPhotoToDelete(photo.id)}
+                            className="absolute top-2 right-2 h-8 w-8 md:h-7 md:w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setPhotoToDelete(photo.id)
+                            }}
                           >
                             <Trash2 className="h-4 w-4 md:h-3.5 md:w-3.5" />
                           </Button>
