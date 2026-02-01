@@ -161,6 +161,14 @@ export async function getUserByRole(role: Role) {
   return mockUsers.find((u) => u.role === role)
 }
 
+export async function getUserById(userId: string) {
+  return mockUsers.find((u) => u.id === userId)
+}
+
+export async function getUsersByIds(userIds: string[]) {
+  return mockUsers.filter((u) => userIds.includes(u.id))
+}
+
 export async function getStudentSessionMetrics(sessionId: string, studentId?: string) {
   let metrics = metricsData.filter((m) => m.sessionId === sessionId)
   if (studentId) {

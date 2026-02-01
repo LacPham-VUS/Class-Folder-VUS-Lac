@@ -15,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2, Upload, BookOpen } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -50,6 +51,7 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
   const [students, setStudents] = useState<Student[]>([])
   const [specialRequests, setSpecialRequests] = useState<SpecialRequest[]>([])
   const [teacher, setTeacher] = useState<User | null>(null)
+  const [tas, setTas] = useState<User[]>([])
   const [classReports, setClassReports] = useState<ClassReport[]>([])
   const [loading, setLoading] = useState(true)
   const [showPhotoDialog, setShowPhotoDialog] = useState(false)
@@ -84,6 +86,12 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         setStudents(studentsData)
         setSpecialRequests(requestsData)
         setTeacher(mockUsers.find((u) => u.id === cls.teacherId) || null)
+        
+        // Load TAs
+        if (cls.taIds && cls.taIds.length > 0) {
+          const taUsers = mockUsers.filter((u) => cls.taIds?.includes(u.id))
+          setTas(taUsers)
+        }
 
         const sessionIds = sessionsData.map((s) => s.id)
         const reports = mockClassReports.filter((r) => sessionIds.includes(r.sessionId))
@@ -293,9 +301,42 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
                   <span className="text-muted-foreground">{t("classes.endDate")}</span>
                   <span className="font-medium">{classData.endDate}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t("classes.teacher")}</span>
-                  <span className="font-medium">{teacher?.name || "N/A"}</span>
+                
+                {/* Teacher Info with Avatar */}
+                <div className="pt-3 mt-3 border-t">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {teacher?.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{teacher?.name || "N/A"}</p>
+                      <p className="text-xs text-muted-foreground">{t("classes.teacher")}</p>
+                    </div>
+                    <Badge variant="secondary" className="shrink-0">
+                      {teacher?.role || "Teacher"}
+                    </Badge>
+                  </div>
+                  
+                  {/* TAs */}
+                  {tas.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-dashed">
+                      <p className="text-xs text-muted-foreground mb-2">{t("teachers.teachingAssistants")}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {tas.map((ta) => (
+                          <div key={ta.id} className="flex items-center gap-2 bg-secondary/50 rounded-full pl-1 pr-3 py-1">
+                            <Avatar className="h-6 w-6">
+                              <AvatarFallback className="text-[10px] bg-secondary text-secondary-foreground">
+                                {ta.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm">{ta.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

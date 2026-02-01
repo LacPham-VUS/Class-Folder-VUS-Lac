@@ -39,6 +39,7 @@ function CameraPageContent() {
   const [isFlashEnabled, setIsFlashEnabled] = useState(true)
   const [showFlash, setShowFlash] = useState(false)
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment")
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<CapturedPhoto | null>(null)
 
   useEffect(() => {
     if (!classId || !type) {
@@ -246,6 +247,65 @@ function CameraPageContent() {
         )} 
       />
 
+      {/* Fullscreen Photo Modal */}
+      {fullscreenPhoto && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+          onClick={() => setFullscreenPhoto(null)}
+        >
+          {/* Close button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 text-white hover:bg-white/20 h-12 w-12 z-10"
+            onClick={(e) => {
+              e.stopPropagation()
+              setFullscreenPhoto(null)
+            }}
+          >
+            <X className="h-8 w-8" />
+          </Button>
+          
+          {/* Photo info */}
+          <div className="absolute top-4 left-4 text-white z-10">
+            <p className="text-lg font-medium">
+              {fullscreenPhoto.studentName ? `📸 ${fullscreenPhoto.studentName}` : "Ảnh lớp học"}
+            </p>
+            <p className="text-sm text-white/70">
+              {new Date(fullscreenPhoto.timestamp).toLocaleString("vi-VN")}
+            </p>
+          </div>
+          
+          {/* Delete button */}
+          <Button
+            variant="destructive"
+            size="sm"
+            className="absolute bottom-4 right-4 z-10"
+            onClick={(e) => {
+              e.stopPropagation()
+              deletePhoto(fullscreenPhoto.id)
+              setFullscreenPhoto(null)
+            }}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Xóa ảnh
+          </Button>
+          
+          {/* Fullscreen Image */}
+          <img
+            src={fullscreenPhoto.dataUrl}
+            alt={fullscreenPhoto.studentName || "Class Photo"}
+            className="max-h-[90vh] max-w-[95vw] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          
+          {/* Navigation hint */}
+          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/50 text-sm">
+            Nhấn vào nền hoặc nút X để đóng
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between bg-black/90 p-3 md:p-4 backdrop-blur-sm">
         <div className="flex items-center gap-2 md:gap-3">
@@ -400,7 +460,8 @@ function CameraPageContent() {
                 {capturedPhotos.map((photo, index) => (
                   <div
                     key={photo.id}
-                    className="relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30"
+                    className="relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 cursor-pointer hover:border-primary/50 transition-colors"
+                    onClick={() => setFullscreenPhoto(photo)}
                   >
                     <img
                       src={photo.dataUrl}
@@ -412,7 +473,10 @@ function CameraPageContent() {
                       size="icon"
                       variant="destructive"
                       className="absolute -right-1 -top-1 h-5 w-5 rounded-full shadow-lg"
-                      onClick={() => deletePhoto(photo.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deletePhoto(photo.id)
+                      }}
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -460,7 +524,8 @@ function CameraPageContent() {
                     {capturedPhotos.map((photo, index) => (
                       <div
                         key={photo.id}
-                        className="group relative aspect-video overflow-hidden rounded-lg border bg-muted"
+                        className="group relative aspect-video overflow-hidden rounded-lg border bg-muted cursor-pointer hover:border-primary/50 transition-colors"
+                        onClick={() => setFullscreenPhoto(photo)}
                       >
                         <img
                           src={photo.dataUrl}
@@ -480,7 +545,10 @@ function CameraPageContent() {
                           size="icon"
                           variant="destructive"
                           className="absolute right-1 top-1 h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md"
-                          onClick={() => deletePhoto(photo.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            deletePhoto(photo.id)
+                          }}
                         >
                           <X className="h-4 w-4" />
                         </Button>
