@@ -36,6 +36,7 @@ function UploadPageContent() {
   const [students, setStudents] = useState<Array<{ id: string; fullName: string }>>([])
   const [isSaving, setIsSaving] = useState(false)
   const [photoType, setPhotoType] = useState<"class" | "student">(initialType || "class")
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     if (!classId) {
@@ -69,18 +70,15 @@ function UploadPageContent() {
     }
   }
 
-  function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files
-    if (!files || files.length === 0) return    // For student photos, must select student first
+  // Process files from input or drag & drop
+  function processFiles(files: FileList | File[]) {
+    // For student photos, must select student first
     if (photoType === "student" && !selectedStudentId) {
       toast({
         title: t("photos.selectStudent"),
         description: t("photos.selectStudentFirst"),
         variant: "destructive",
       })
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""
-      }
       return
     }
 
@@ -103,10 +101,63 @@ function UploadPageContent() {
       }
       reader.readAsDataURL(file)
     })
+  }
+
+  function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files
+    if (!files || files.length === 0) return
+    
+    processFiles(files)
 
     // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
+    }
+  }
+
+  // Drag & Drop handlers
+  function handleDragEnter(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    // Only set to false if we're leaving the drop zone completely
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return
+    setIsDragging(false)
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    // Check if student is selected for student photos
+    if (photoType === "student" && !selectedStudentId) {
+      toast({
+        title: t("photos.selectStudent"),
+        description: t("photos.selectStudentFirst"),
+        variant: "destructive",
+      })
+      return
+    }
+
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      processFiles(files)
+      
+      toast({
+        title: "📸 " + t("photos.photosAdded"),
+        description: `${files.length} ${t("photos.photosSelected").toLowerCase()}`,
+      })
     }
   }
 
@@ -250,7 +301,7 @@ function UploadPageContent() {
 
           {/* Upload Zone */}
           <Card className="flex-1 overflow-hidden">
-            <CardContent className="p-3 md:p-4 h-full flex flex-col">
+            <CardContent className="p-3 md:p-4 h-full flex flex-col relative">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -261,7 +312,8 @@ function UploadPageContent() {
               />
 
               {uploadedPhotos.length === 0 ? (
-                <div                  onClick={() => {
+                <div
+                  onClick={() => {
                     if (photoType === "student" && !selectedStudentId) {
                       toast({
                         title: t("photos.selectStudent"),
@@ -272,23 +324,64 @@ function UploadPageContent() {
                     }
                     fileInputRef.current?.click()
                   }}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
                   className={cn(
-                    "flex-1 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors",
+                    "flex-1 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-200",
                     "hover:border-primary hover:bg-primary/5",
+                    isDragging && "border-primary bg-primary/10 scale-[1.02]",
                     photoType === "student" && !selectedStudentId && "opacity-50 cursor-not-allowed"
-                  )}                >
-                  <ImagePlus className="h-16 w-16 mb-4 text-muted-foreground" />
-                  <p className="text-lg font-medium">{t("photos.clickToSelect")}</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t("photos.supportedFormats")}
-                  </p>
-                  {photoType === "student" && !selectedStudentId && (
-                    <p className="text-sm text-destructive mt-3">
-                      ⚠️ {t("photos.selectStudentFirst")}
-                    </p>
+                  )}
+                >
+                  {isDragging ? (
+                    <>
+                      <Upload className="h-16 w-16 mb-4 text-primary animate-bounce" />
+                      <p className="text-lg font-medium text-primary">{t("photos.dropHere")}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("photos.releaseToUpload")}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <ImagePlus className="h-16 w-16 mb-4 text-muted-foreground" />
+                      <p className="text-lg font-medium">{t("photos.clickOrDrag")}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("photos.supportedFormats")}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        💡 {t("photos.dragDropHint")}
+                      </p>
+                      {photoType === "student" && !selectedStudentId && (
+                        <p className="text-sm text-destructive mt-3">
+                          ⚠️ {t("photos.selectStudentFirst")}
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
-              ) : (                <div className="flex-1 flex flex-col min-h-0">
+              ) : (
+                <div 
+                  className={cn(
+                    "flex-1 flex flex-col min-h-0 rounded-lg transition-all duration-200",
+                    isDragging && "ring-2 ring-primary ring-offset-2 bg-primary/5"
+                  )}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                >
+                  {/* Drag overlay when dragging more photos */}
+                  {isDragging && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-primary/10 rounded-lg border-2 border-dashed border-primary">
+                      <div className="text-center">
+                        <Upload className="h-12 w-12 mx-auto mb-2 text-primary animate-bounce" />
+                        <p className="text-lg font-medium text-primary">{t("photos.dropHere")}</p>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold">
                       {t("photos.photosSelected")}: {uploadedPhotos.length}

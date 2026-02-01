@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { BookOpen, Search, FileText, MessageSquare, Award, Users, Info } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { GuidelineContentRenderer } from "@/components/guideline-content-renderer"
+import { BackToTop } from "@/components/back-to-top"
 
 export default function GuidelinesPage() {
   const [guidelines, setGuidelines] = useState<Guideline[]>([])
@@ -239,6 +240,8 @@ export default function GuidelinesPage() {
           ))}
         </Tabs>
       </div>
+      
+      <BackToTop />
     </div>
   )
 }

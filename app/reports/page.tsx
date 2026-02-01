@@ -28,6 +28,7 @@ import Link from "next/link"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import { BackToTop } from "@/components/back-to-top"
 
 interface ReportWithDetails extends ClassReport {
   session: Session
@@ -713,6 +714,8 @@ export default function ReportsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <BackToTop />
     </div>
   )
 }

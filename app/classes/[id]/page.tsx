@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
+import { BackToTop } from "@/components/back-to-top"
 
 export default function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -1191,6 +1192,8 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <BackToTop />
     </div>
   )
 }

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, FileText, Plus } from "lucide-react"
 import Link from "next/link"
+import { BackToTop } from "@/components/back-to-top"
 
 export default function SessionsPage() {
   const { currentRole, currentUser, selectedClassId } = useAuth()
@@ -268,6 +269,8 @@ export default function SessionsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <BackToTop />
     </div>
   )
 }

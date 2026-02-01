@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Search, Filter, Plus, Camera } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { BackToTop } from "@/components/back-to-top"
 
 export default function ClassesPage() {
   const { selectedCenterId } = useAuth()
@@ -275,6 +276,8 @@ export default function ClassesPage() {
           </CardContent>
         </Card>
       )}
+      
+      <BackToTop />
     </div>
   )
 }

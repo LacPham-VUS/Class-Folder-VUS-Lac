@@ -46,6 +46,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
+import { BackToTop } from "@/components/back-to-top"
 
 export default function SettingsPage() {
   const { currentUser, currentRole } = useAuth()
@@ -1510,9 +1511,7 @@ export default function SettingsPage() {
               <span className="text-sm text-muted-foreground">Selected Classes:</span>
               <Badge>{selectedClassIds.length}</Badge>
             </div>
-          </div>
-
-          <DialogFooter>
+          </div>          <DialogFooter>
             <Button variant="outline" onClick={() => setIsAssignClassesDialogOpen(false)}>
               Cancel
             </Button>
@@ -1520,6 +1519,7 @@ export default function SettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <BackToTop />
     </div>
   )
 }

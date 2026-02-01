@@ -22,6 +22,7 @@ import { Search, Filter, Plus, AlertTriangle, Clock, CheckCircle } from "lucide-
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { BackToTop } from "@/components/back-to-top"
 
 export default function RequestsPage() {
   const { toast } = useToast()
@@ -351,6 +352,8 @@ export default function RequestsPage() {
           </CardContent>
         </Card>
       )}
+      
+      <BackToTop />
     </div>
   )
 }

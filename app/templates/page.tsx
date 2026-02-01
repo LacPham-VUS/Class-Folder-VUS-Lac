@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mockCommentSnippets, defaultChecklistItems } from "@/lib/mock-data"
 import { Plus, Search, Edit, Trash2 } from "lucide-react"
+import { BackToTop } from "@/components/back-to-top"
 import type { CommentSnippet, ChecklistItem } from "@/lib/types"
 
 export default function TemplatesPage() {
@@ -293,6 +294,8 @@ export default function TemplatesPage() {
           </div>
         </TabsContent>
       </Tabs>
+      
+      <BackToTop />
     </div>
   )
 }

@@ -34,6 +34,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { useUserPreferences } from "@/hooks/use-user-preferences"
 import { ViewModeSwitcher } from "@/components/view-mode-switcher"
+import { BackToTop } from "@/components/back-to-top"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -772,6 +773,8 @@ export default function TeachersPage() {
           )}
         </SheetContent>
       </Sheet>
+      
+      <BackToTop />
     </div>
   )
 }

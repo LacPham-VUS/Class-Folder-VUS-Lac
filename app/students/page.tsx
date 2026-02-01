@@ -36,6 +36,7 @@ import { useUserPreferences } from "@/hooks/use-user-preferences"
 import { ViewModeSwitcher } from "@/components/view-mode-switcher"
 import { SavedFilters } from "@/components/saved-filters"
 import { CustomTagsManager } from "@/components/custom-tags-manager"
+import { BackToTop } from "@/components/back-to-top"
 import { cn } from "@/lib/utils"
 
 export default function StudentsPage() {
@@ -760,6 +761,8 @@ export default function StudentsPage() {
           )}
         </SheetContent>
       </Sheet>
+      
+      <BackToTop />
     </div>
   )
 }
