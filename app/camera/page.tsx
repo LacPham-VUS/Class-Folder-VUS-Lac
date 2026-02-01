@@ -228,7 +228,11 @@ function CameraPageContent() {
         description: type === "class" 
           ? `Đã lưu ${capturedPhotos.length} ảnh ${photoType}`
           : `Đã lưu ${capturedPhotos.length} ảnh cho học sinh: ${studentNames || "N/A"}`,
+        duration: 3000,
       })
+      
+      // Delay navigation to allow toast to be visible
+      await new Promise(resolve => setTimeout(resolve, 1500))
       
       // Navigate back to class files tab
       router.push(`/classes/${classId}?tab=files`)
@@ -539,7 +543,7 @@ function CameraPageContent() {
                 {capturedPhotos.map((photo, index) => (
                   <div
                     key={photo.id}
-                    className="group relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 cursor-pointer hover:border-primary/50 transition-colors"
+                    className="group relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 cursor-pointer hover:border-primary/50 active:border-primary active:scale-95 transition-all"
                     onClick={() => setFullscreenPhoto(photo)}
                   >
                     <img
@@ -547,9 +551,12 @@ function CameraPageContent() {
                       alt={`Photo ${index + 1}`}
                       className="h-full w-full object-cover"
                     />
-                    {/* Zoom overlay on hover */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <ZoomIn className="h-5 w-5 text-white" />
+                    {/* Zoom icon - Always visible on mobile */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
+                      <div className="flex items-center gap-0.5 text-white/90">
+                        <ZoomIn className="h-3 w-3" />
+                        <span className="text-[8px]">Xem</span>
+                      </div>
                     </div>
                     {/* Delete button - Always visible */}
                     <Button
