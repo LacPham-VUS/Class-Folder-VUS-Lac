@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth-context"
 import { LanguageProvider } from "@/lib/language-context"
 import { AuthGuard } from "@/components/auth-guard"
 import { QuickAccessBar } from "@/components/quick-access-bar"
+import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -51,6 +52,7 @@ export default function RootLayout({
             </AuthGuard>
           </AuthProvider>
         </LanguageProvider>
+        <Toaster />
         <Analytics />
       </body>
     </html>

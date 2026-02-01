@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2, Upload, BookOpen, ZoomIn, ZoomOut, RotateCcw, X } from "lucide-react"
+import { ArrowLeft, Calendar, Users, FileText, AlertCircle, FolderOpen, BarChart, Camera, Image, Trash2, Upload, BookOpen, ZoomIn, ZoomOut, RotateCcw, X, Mail, Send } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { use } from "react"
@@ -32,6 +32,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { BackToTop } from "@/components/back-to-top"
 
@@ -62,6 +72,10 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
   const [generatingAI, setGeneratingAI] = useState(false)
   const [fullscreenPhoto, setFullscreenPhoto] = useState<any | null>(null)
   const [zoomLevel, setZoomLevel] = useState(1)
+  const [showEmailDialog, setShowEmailDialog] = useState(false)
+  const [sendToManager, setSendToManager] = useState(true)
+  const [sendToParents, setSendToParents] = useState(true)
+  const [sendingEmail, setSendingEmail] = useState(false)
   
   // Get active tab from URL or default to overview
   const activeTab = searchParams.get("tab") || "overview"
@@ -165,6 +179,40 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
         variant: "destructive",
       })
     }
+  }
+
+  async function handleSendEmail() {
+    if (!sendToManager && !sendToParents) {
+      toast({
+        title: "⚠️ No recipients selected",
+        description: "Please select at least one recipient to send photos",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setSendingEmail(true)
+    
+    // Simulate sending email
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    
+    setSendingEmail(false)
+    setShowEmailDialog(false)
+    
+    // Build recipients list with icons
+    const recipients = []
+    if (sendToManager) recipients.push("📊 Manager")
+    if (sendToParents) recipients.push("👨‍👩‍👧‍👦 Parents")
+    
+    const photoCount = photos.length
+    const photoText = photoCount === 1 ? "photo" : "photos"
+    
+    toast({
+      title: "✅ Email sent successfully!",
+      description: `${photoCount} ${photoText} sent to: ${recipients.join(" and ")}`,
+      duration: 4000,
+      variant: "success" as any,
+    })
   }
 
   if (loading) {
@@ -983,6 +1031,15 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
           <div className="flex flex-wrap gap-2 justify-end">
             <Button
               variant="outline"
+              onClick={() => setShowEmailDialog(true)}
+              className="gap-2"
+              disabled={photos.length === 0}
+            >
+              <Mail className="h-4 w-4" />
+              Send Email
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => router.push(`/upload?classId=${classId}&type=class`)}
               className="gap-2"
             >
@@ -1192,6 +1249,98 @@ function ClassDetailPageClient({ classId }: { classId: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Send Email Dialog */}
+      <Dialog 
+        open={showEmailDialog} 
+        onOpenChange={(open) => {
+          setShowEmailDialog(open)
+          // Reset to default state when dialog closes
+          if (!open) {
+            setSendToManager(true)
+            setSendToParents(true)
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-primary" />
+              Send Photos via Email
+            </DialogTitle>
+            <DialogDescription>
+              Select recipients for <span className="font-semibold text-foreground">{photos.length} photo{photos.length !== 1 ? 's' : ''}</span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 py-4">
+            <div className="flex items-center space-x-3 rounded-lg border-2 border-primary/20 bg-primary/5 p-4 hover:bg-primary/10 transition-colors">
+              <Checkbox
+                id="manager"
+                checked={sendToManager}
+                onCheckedChange={(checked) => setSendToManager(checked as boolean)}
+                className="border-primary data-[state=checked]:bg-primary"
+              />
+              <Label
+                htmlFor="manager"
+                className="flex-1 cursor-pointer"
+              >
+                <div className="font-medium flex items-center gap-2">
+                  📊 Send to Manager
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">Academic/Center manager will receive photos</div>
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-3 rounded-lg border-2 border-primary/20 bg-primary/5 p-4 hover:bg-primary/10 transition-colors">
+              <Checkbox
+                id="parents"
+                checked={sendToParents}
+                onCheckedChange={(checked) => setSendToParents(checked as boolean)}
+                className="border-primary data-[state=checked]:bg-primary"
+              />
+              <Label
+                htmlFor="parents"
+                className="flex-1 cursor-pointer"
+              >
+                <div className="font-medium flex items-center gap-2">
+                  👨‍👩‍👧‍👦 Send to Parents
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  All {students.length} parent{students.length !== 1 ? 's' : ''} in this class will receive photos
+                </div>
+              </Label>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowEmailDialog(false)}
+              disabled={sendingEmail}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSendEmail}
+              disabled={sendingEmail || (!sendToManager && !sendToParents)}
+              className="gap-2"
+            >
+              {sendingEmail ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Send Email
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       <BackToTop />
     </div>
