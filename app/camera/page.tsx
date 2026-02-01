@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Camera, X, Check, ArrowLeft, Trash2, Save, FlipHorizontal, Zap, ZapOff } from "lucide-react"
+import { Camera, X, Check, ArrowLeft, Trash2, Save, FlipHorizontal, Zap, ZapOff, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
 import { getStudentsByClass, getStudentById } from "@/lib/data-access"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
@@ -40,6 +40,7 @@ function CameraPageContent() {
   const [showFlash, setShowFlash] = useState(false)
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment")
   const [fullscreenPhoto, setFullscreenPhoto] = useState<CapturedPhoto | null>(null)
+  const [zoomLevel, setZoomLevel] = useState(1)
 
   useEffect(() => {
     if (!classId || !type) {
@@ -216,9 +217,17 @@ function CameraPageContent() {
       
       console.log("Saved photos:", photosToSave.length, "Total:", allPhotos.length)
       
+      // Create detailed toast message
+      const photoType = type === "class" ? "lớp học" : "học sinh"
+      const studentNames = type === "student" 
+        ? [...new Set(capturedPhotos.filter(p => p.studentName).map(p => p.studentName))].join(", ")
+        : null
+      
       toast({
-        title: "✅ Photos Saved!",
-        description: `${capturedPhotos.length} photo(s) saved successfully`,
+        title: "✅ Đã lưu ảnh thành công!",
+        description: type === "class" 
+          ? `Đã lưu ${capturedPhotos.length} ảnh ${photoType}`
+          : `Đã lưu ${capturedPhotos.length} ảnh cho học sinh: ${studentNames || "N/A"}`,
       })
       
       // Navigate back to class files tab
@@ -250,8 +259,11 @@ function CameraPageContent() {
       {/* Fullscreen Photo Modal */}
       {fullscreenPhoto && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
-          onClick={() => setFullscreenPhoto(null)}
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center overflow-hidden"
+          onClick={() => {
+            setFullscreenPhoto(null)
+            setZoomLevel(1)
+          }}
         >
           {/* Close button */}
           <Button
@@ -261,6 +273,7 @@ function CameraPageContent() {
             onClick={(e) => {
               e.stopPropagation()
               setFullscreenPhoto(null)
+              setZoomLevel(1)
             }}
           >
             <X className="h-8 w-8" />
@@ -276,6 +289,54 @@ function CameraPageContent() {
             </p>
           </div>
           
+          {/* Zoom Controls */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-black/60 rounded-full px-4 py-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 h-10 w-10"
+              onClick={(e) => {
+                e.stopPropagation()
+                setZoomLevel(prev => Math.max(0.5, prev - 0.25))
+              }}
+              disabled={zoomLevel <= 0.5}
+            >
+              <ZoomOut className="h-5 w-5" />
+            </Button>
+            
+            <span className="text-white text-sm font-medium min-w-[60px] text-center">
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 h-10 w-10"
+              onClick={(e) => {
+                e.stopPropagation()
+                setZoomLevel(prev => Math.min(3, prev + 0.25))
+              }}
+              disabled={zoomLevel >= 3}
+            >
+              <ZoomIn className="h-5 w-5" />
+            </Button>
+            
+            <div className="w-px h-6 bg-white/30 mx-1" />
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 h-10 w-10"
+              onClick={(e) => {
+                e.stopPropagation()
+                setZoomLevel(1)
+              }}
+              disabled={zoomLevel === 1}
+            >
+              <RotateCcw className="h-5 w-5" />
+            </Button>
+          </div>
+          
           {/* Delete button */}
           <Button
             variant="destructive"
@@ -285,23 +346,33 @@ function CameraPageContent() {
               e.stopPropagation()
               deletePhoto(fullscreenPhoto.id)
               setFullscreenPhoto(null)
+              setZoomLevel(1)
             }}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Xóa ảnh
           </Button>
           
-          {/* Fullscreen Image */}
-          <img
-            src={fullscreenPhoto.dataUrl}
-            alt={fullscreenPhoto.studentName || "Class Photo"}
-            className="max-h-[90vh] max-w-[95vw] object-contain rounded-lg shadow-2xl"
+          {/* Fullscreen Image with Zoom */}
+          <div 
+            className="overflow-auto max-h-[90vh] max-w-[95vw] flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
-          />
+          >
+            <img
+              src={fullscreenPhoto.dataUrl}
+              alt={fullscreenPhoto.studentName || "Class Photo"}
+              className="rounded-lg shadow-2xl transition-transform duration-200 cursor-grab active:cursor-grabbing"
+              style={{ 
+                transform: `scale(${zoomLevel})`,
+                transformOrigin: 'center center'
+              }}
+              draggable={false}
+            />
+          </div>
           
-          {/* Navigation hint */}
-          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/50 text-sm">
-            Nhấn vào nền hoặc nút X để đóng
+          {/* Hint text */}
+          <p className="absolute top-16 left-1/2 -translate-x-1/2 text-white/50 text-sm">
+            Cuộn để zoom • Nhấn vào nền hoặc X để đóng
           </p>
         </div>
       )}
@@ -442,10 +513,18 @@ function CameraPageContent() {
           </div>
           
           {/* Mobile Preview Thumbnails - Shows horizontally under controls */}
-          {capturedPhotos.length > 0 && (
+          {capturedPhotos.length > 0 ? (
             <div className="md:hidden">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-xs font-semibold text-white">Ảnh đã chụp ({capturedPhotos.length})</h3>
+                {capturedPhotos.length < 3 && (
+                  <span className="text-[10px] text-amber-400">
+                    💡 Chụp thêm {3 - capturedPhotos.length} ảnh nữa!
+                  </span>
+                )}
+                {capturedPhotos.length >= 5 && (
+                  <span className="text-[10px] text-green-400">🎉 Tuyệt vời!</span>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -460,7 +539,7 @@ function CameraPageContent() {
                 {capturedPhotos.map((photo, index) => (
                   <div
                     key={photo.id}
-                    className="relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 cursor-pointer hover:border-primary/50 transition-colors"
+                    className="group relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 cursor-pointer hover:border-primary/50 transition-colors"
                     onClick={() => setFullscreenPhoto(photo)}
                   >
                     <img
@@ -468,11 +547,15 @@ function CameraPageContent() {
                       alt={`Photo ${index + 1}`}
                       className="h-full w-full object-cover"
                     />
+                    {/* Zoom overlay on hover */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <ZoomIn className="h-5 w-5 text-white" />
+                    </div>
                     {/* Delete button - Always visible */}
                     <Button
                       size="icon"
                       variant="destructive"
-                      className="absolute -right-1 -top-1 h-5 w-5 rounded-full shadow-lg"
+                      className="absolute -right-1 -top-1 h-5 w-5 rounded-full shadow-lg z-10"
                       onClick={(e) => {
                         e.stopPropagation()
                         deletePhoto(photo.id)
@@ -487,6 +570,15 @@ function CameraPageContent() {
                   </div>
                 ))}
               </div>
+            </div>
+          ) : (
+            <div className="md:hidden text-center py-4">
+              <p className="text-white/60 text-xs">
+                📸 Nhấn nút chụp để bắt đầu!
+              </p>
+              <p className="text-white/40 text-[10px] mt-1 italic">
+                "Lưu giữ khoảnh khắc học tập đáng nhớ"
+              </p>
             </div>
           )}
         </div>
@@ -515,12 +607,25 @@ function CameraPageContent() {
               <div className="flex-1 overflow-y-auto">
                 {capturedPhotos.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-8">
-                    <Camera className="h-12 w-12 mb-2 opacity-20" />
-                    <p className="text-sm">Chưa có ảnh</p>
-                    <p className="text-xs">Chụp ảnh để xem ở đây</p>
+                    <Camera className="h-12 w-12 mb-3 opacity-20" />
+                    <p className="text-sm font-medium">Chưa có ảnh nào</p>
+                    <p className="text-xs mt-1 max-w-[200px]">
+                      📸 Hãy chụp những khoảnh khắc đáng nhớ của lớp học!
+                    </p>
+                    <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20 max-w-[220px]">
+                      <p className="text-[10px] text-primary/80 italic">
+                        "Mỗi bức ảnh là một câu chuyện về hành trình học tập của học sinh"
+                      </p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+                ) : capturedPhotos.length < 3 ? (
+                  <>
+                    <div className="mb-3 p-2 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <p className="text-[10px] text-amber-700 dark:text-amber-400 text-center">
+                        💡 Tip: Chụp thêm {3 - capturedPhotos.length} ảnh nữa để có bộ sưu tập đẹp hơn!
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
                     {capturedPhotos.map((photo, index) => (
                       <div
                         key={photo.id}
@@ -533,6 +638,13 @@ function CameraPageContent() {
                           className="h-full w-full object-cover"
                         />
                         
+                        {/* Zoom overlay on hover */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                          <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                            <ZoomIn className="h-6 w-6 text-white" />
+                          </div>
+                        </div>
+                        
                         {/* Photo info overlay */}
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 md:p-2">
                           <p className="text-[10px] md:text-xs text-white truncate">
@@ -544,7 +656,7 @@ function CameraPageContent() {
                         <Button
                           size="icon"
                           variant="destructive"
-                          className="absolute right-1 top-1 h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md"
+                          className="absolute right-1 top-1 h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md z-10"
                           onClick={(e) => {
                             e.stopPropagation()
                             deletePhoto(photo.id)
@@ -560,6 +672,64 @@ function CameraPageContent() {
                       </div>
                     ))}
                   </div>
+                  </>
+                ) : (
+                  <>
+                    {capturedPhotos.length >= 5 && (
+                      <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                        <p className="text-[10px] text-green-700 dark:text-green-400 text-center">
+                          🎉 Tuyệt vời! Bạn đã chụp được {capturedPhotos.length} ảnh đẹp!
+                        </p>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+                      {capturedPhotos.map((photo, index) => (
+                        <div
+                          key={photo.id}
+                          className="group relative aspect-video overflow-hidden rounded-lg border bg-muted cursor-pointer hover:border-primary/50 transition-colors"
+                          onClick={() => setFullscreenPhoto(photo)}
+                        >
+                          <img
+                            src={photo.dataUrl}
+                            alt={photo.studentName ? `Photo of ${photo.studentName}` : `Class Photo ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                          
+                          {/* Zoom overlay on hover */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                            <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                              <ZoomIn className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
+                          
+                          {/* Photo info overlay */}
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 md:p-2">
+                            <p className="text-[10px] md:text-xs text-white truncate">
+                              {photo.studentName ? `📸 ${photo.studentName}` : `Ảnh lớp ${index + 1}`}
+                            </p>
+                          </div>
+                          
+                          {/* Delete button */}
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            className="absolute right-1 top-1 h-7 w-7 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md z-10"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              deletePhoto(photo.id)
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          
+                          {/* Photo number badge */}
+                          <div className="absolute left-1 top-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                            #{index + 1}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
               

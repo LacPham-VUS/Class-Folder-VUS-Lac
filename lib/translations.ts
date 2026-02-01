@@ -115,6 +115,7 @@ export const translations = {
       completed: "Hoàn thành",
       noClassesFound: "Không tìm thấy lớp học nào",
       tryAdjusting: "Thử điều chỉnh tìm kiếm hoặc bộ lọc của bạn",
+      photos: "Ảnh",
     },
     
     // Students
@@ -597,6 +598,7 @@ export const translations = {
       completed: "Completed",
       noClassesFound: "No classes found",
       tryAdjusting: "Try adjusting your search or filters",
+      photos: "Photos",
     },
     
     // Students

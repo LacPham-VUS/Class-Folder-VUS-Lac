@@ -11,12 +11,14 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Search, Filter, Plus } from "lucide-react"
+import { Search, Filter, Plus, Camera } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function ClassesPage() {
   const { selectedCenterId } = useAuth()
   const { t } = useLanguage()
+  const router = useRouter()
   const [classes, setClasses] = useState<Class[]>([])
   const [centers, setCenters] = useState<Center[]>([])
   const [teachers, setTeachers] = useState<Map<string, User>>(new Map())
@@ -241,6 +243,21 @@ export default function ClassesPage() {
                       <Badge variant={cls.status === "Active" ? "default" : "secondary"} className="text-xs">
                         {cls.status === "Active" ? t("classes.active") : cls.status === "Upcoming" ? t("classes.upcoming") : t("classes.completed")}
                       </Badge>
+                    </div>
+                    {/* Photos Button */}
+                    <div className="pt-3 mt-2 border-t">
+                      <Button
+                        size="sm"
+                        className="w-full gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          router.push(`/classes/${cls.id}?tab=files`)
+                        }}
+                      >
+                        <Camera className="h-4 w-4" />
+                        {t("classes.photos")}
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
