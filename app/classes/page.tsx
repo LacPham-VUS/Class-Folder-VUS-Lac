@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
+import { useLanguage } from "@/lib/language-context"
 import { getClasses, getCenters } from "@/lib/data-access"
 import type { Class, Center } from "@/lib/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,6 +15,7 @@ import Link from "next/link"
 
 export default function ClassesPage() {
   const { selectedCenterId } = useAuth()
+  const { t } = useLanguage()
   const [classes, setClasses] = useState<Class[]>([])
   const [centers, setCenters] = useState<Center[]>([])
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([])
@@ -88,12 +90,12 @@ export default function ClassesPage() {
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Classes</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Manage and view all classes</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t("classes.title")}</h1>
+          <p className="text-sm md:text-base text-muted-foreground">{t("classes.manageClasses")}</p>
         </div>
         <Button className="w-fit">
           <Plus className="mr-2 h-4 w-4" />
-          New Class
+          {t("classes.addClass")}
         </Button>
       </div>
 
@@ -104,7 +106,7 @@ export default function ClassesPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search by class code, program, or level..."
+                placeholder={t("classes.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -113,10 +115,10 @@ export default function ClassesPage() {
             <div className="grid grid-cols-2 gap-2 md:flex md:gap-4">
               <Select value={filterProgram} onValueChange={setFilterProgram}>
                 <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Program" />
+                  <SelectValue placeholder={t("classes.program")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Programs</SelectItem>
+                  <SelectItem value="all">{t("classes.allPrograms")}</SelectItem>
                   {programs.map((program) => (
                     <SelectItem key={program} value={program}>
                       {program}
@@ -126,13 +128,13 @@ export default function ClassesPage() {
               </Select>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-full md:w-36">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("classes.status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Upcoming">Upcoming</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
+                  <SelectItem value="all">{t("classes.allStatuses")}</SelectItem>
+                  <SelectItem value="Active">{t("classes.active")}</SelectItem>
+                  <SelectItem value="Upcoming">{t("classes.upcoming")}</SelectItem>
+                  <SelectItem value="Completed">{t("classes.completed")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -172,22 +174,24 @@ export default function ClassesPage() {
                 <CardContent className="p-4 md:p-6 pt-0">
                   <div className="space-y-1.5 md:space-y-2">
                     <div className="flex items-center justify-between text-xs md:text-sm">
-                      <span className="text-muted-foreground">Program</span>
+                      <span className="text-muted-foreground">{t("classes.program")}</span>
                       <span className="font-medium truncate ml-2">
                         {cls.program} {cls.level}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs md:text-sm">
-                      <span className="text-muted-foreground">Schedule</span>
+                      <span className="text-muted-foreground">{t("classes.schedule")}</span>
                       <span className="font-medium text-xs truncate ml-2">{cls.shift}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs md:text-sm">
-                      <span className="text-muted-foreground">Students</span>
+                      <span className="text-muted-foreground">{t("classes.students")}</span>
                       <span className="font-medium">{cls.studentCount}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs md:text-sm">
-                      <span className="text-muted-foreground">Status</span>
-                      <Badge variant={cls.status === "Active" ? "default" : "secondary"} className="text-xs">{cls.status}</Badge>
+                      <span className="text-muted-foreground">{t("classes.status")}</span>
+                      <Badge variant={cls.status === "Active" ? "default" : "secondary"} className="text-xs">
+                        {cls.status === "Active" ? t("classes.active") : cls.status === "Upcoming" ? t("classes.upcoming") : t("classes.completed")}
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -200,8 +204,8 @@ export default function ClassesPage() {
       {filteredClasses.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-lg font-medium">No classes found</p>
-            <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+            <p className="text-lg font-medium">{t("classes.noClassesFound")}</p>
+            <p className="text-sm text-muted-foreground">{t("classes.tryAdjusting")}</p>
           </CardContent>
         </Card>
       )}

@@ -5,6 +5,7 @@ import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { useLanguage } from "@/lib/language-context"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useState, useEffect } from "react"
@@ -20,6 +21,7 @@ import {
   Book,
   Menu,
   X,
+  MessageSquare,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -57,6 +59,12 @@ const navItems: NavItem[] = [
     roles: ["TA", "Teacher", "ASA", "SystemAdmin"],
   },
   {
+    title: "Feedback",
+    href: "/feedback",
+    icon: MessageSquare,
+    roles: ["TA", "Teacher", "ASA", "TQM", "SystemAdmin"],
+  },
+  {
     title: "Class Reports",
     href: "/reports",
     icon: FileText,
@@ -91,8 +99,26 @@ const navItems: NavItem[] = [
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const { currentRole } = useAuth()
+  const { t } = useLanguage()
 
   const filteredNavItems = navItems.filter((item) => item.roles.includes(currentRole))
+
+  // Translation mapping for nav items
+  const getNavTitle = (title: string) => {
+    const titleMap: Record<string, string> = {
+      "Dashboard": t("nav.dashboard"),
+      "Classes": t("nav.classes"),
+      "Sessions": t("nav.sessions"),
+      "Students": t("nav.students"),
+      "Feedback": t("nav.feedback"),
+      "Class Reports": t("nav.reports"),
+      "Special Requests": t("nav.requests"),
+      "Guidelines": t("nav.guidelines"),
+      "Templates & Rubrics": t("nav.templates"),
+      "Settings": t("nav.settings"),
+    }
+    return titleMap[title] || title
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -138,7 +164,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 "h-5 w-5 shrink-0 transition-transform duration-200",
                 isActive ? "scale-110" : "group-hover:scale-105"
               )} />
-              <span className="truncate">{item.title}</span>
+              <span className="truncate">{getNavTitle(item.title)}</span>
             </Link>
           )
         })}

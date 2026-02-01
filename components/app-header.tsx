@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation"
 import { getCenters, getClasses } from "@/lib/data-access"
 import type { Center, Class } from "@/lib/types"
 import { Input } from "@/components/ui/input"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 export function AppHeader() {
   const router = useRouter()
@@ -204,6 +205,7 @@ export function AppHeader() {
 
       {/* Right section - Actions */}
       <div className="flex items-center gap-1 md:gap-2 shrink-0">
+        <LanguageSwitcher />
         <Button variant="ghost" size="icon" className="h-8 w-8 md:h-9 md:w-9">
           <Bell className="h-4 w-4 md:h-5 md:w-5" />
         </Button>

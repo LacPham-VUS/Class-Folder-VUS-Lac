@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner"
 import { Eye, EyeOff } from "lucide-react"
 import Image from "next/image"
+import { LoadingScreen } from "@/components/loading-screen"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false)
 
   const demoAccounts = [
     { role: "TA", email: "ta1@vus.edu.vn", name: "Nguyễn Văn A" },
@@ -37,13 +39,14 @@ export default function LoginPage() {
       const success = await login(email, password)
       if (success) {
         toast.success("Đăng nhập thành công!")
-        router.push("/")
+        setShowLoadingScreen(true)
+        // Don't navigate immediately, LoadingScreen will handle it
       } else {
         toast.error("Email hoặc mật khẩu không đúng")
+        setIsLoading(false)
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra, vui lòng thử lại")
-    } finally {
       setIsLoading(false)
     }
   }
@@ -57,17 +60,27 @@ export default function LoginPage() {
       const success = await login(demoEmail, "demo123")
       if (success) {
         toast.success("Đăng nhập thành công!")
-        router.push("/")
+        setShowLoadingScreen(true)
+        // Don't navigate immediately, LoadingScreen will handle it
+      } else {
+        toast.error("Đăng nhập thất bại")
+        setIsLoading(false)
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra")
-    } finally {
       setIsLoading(false)
     }
   }
 
+  const handleLoadingComplete = () => {
+    router.push("/")
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-3 sm:p-4">
+    <>
+      {showLoadingScreen && <LoadingScreen onComplete={handleLoadingComplete} />}
+      
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-3 sm:p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-2 sm:space-y-3 text-center px-4 sm:px-6">
           <div className="mx-auto mb-1 sm:mb-2 flex items-center justify-center">
@@ -156,6 +169,7 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   )
 }

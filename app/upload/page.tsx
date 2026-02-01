@@ -9,6 +9,7 @@ import { Upload, X, ArrowLeft, Trash2, Save, ImagePlus, Users, Image } from "luc
 import { getStudentsByClass } from "@/lib/data-access"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { useLanguage } from "@/lib/language-context"
 import { cn } from "@/lib/utils"
 
 interface UploadedPhoto {
@@ -23,6 +24,7 @@ function UploadPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
+  const { t } = useLanguage()
   
   const classId = searchParams.get("classId")
   const initialType = searchParams.get("photoType") as "class" | "student" | null
@@ -69,13 +71,11 @@ function UploadPageContent() {
 
   function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files
-    if (!files || files.length === 0) return
-
-    // For student photos, must select student first
+    if (!files || files.length === 0) return    // For student photos, must select student first
     if (photoType === "student" && !selectedStudentId) {
       toast({
-        title: "Chọn học sinh",
-        description: "Vui lòng chọn học sinh trước khi upload ảnh",
+        title: t("photos.selectStudent"),
+        description: t("photos.selectStudentFirst"),
         variant: "destructive",
       })
       if (fileInputRef.current) {
@@ -113,12 +113,11 @@ function UploadPageContent() {
   function deletePhoto(photoId: string) {
     setUploadedPhotos(prev => prev.filter(p => p.id !== photoId))
   }
-
   async function savePhotos() {
     if (uploadedPhotos.length === 0) {
       toast({
-        title: "Chưa có ảnh",
-        description: "Vui lòng upload ít nhất một ảnh trước khi lưu",
+        title: t("photos.noPhotos"),
+        description: t("photos.uploadPrompt"),
         variant: "destructive",
       })
       return
@@ -144,8 +143,8 @@ function UploadPageContent() {
       localStorage.setItem("vus_photos", JSON.stringify(allPhotos))
 
       toast({
-        title: "✅ Đã lưu ảnh!",
-        description: `${uploadedPhotos.length} ảnh đã được lưu thành công`,
+        title: t("photos.photoSaved"),
+        description: `${uploadedPhotos.length} ${t("photos.photosSaved")}`,
       })
 
       // Navigate back to class files tab
@@ -153,8 +152,8 @@ function UploadPageContent() {
     } catch (error) {
       console.error("Error saving photos:", error)
       toast({
-        title: "Lỗi",
-        description: "Không thể lưu ảnh. Vui lòng thử lại.",
+        title: t("messages.error"),
+        description: t("messages.saveError"),
         variant: "destructive",
       })
     } finally {
@@ -176,27 +175,25 @@ function UploadPageContent() {
             className="h-9 w-9"
           >
             <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
+          </Button>          <div>
             <h1 className="text-base md:text-lg font-semibold">
-              Upload ảnh
+              {t("photos.uploadPhotos")}
             </h1>
             <p className="text-xs md:text-sm text-muted-foreground">
-              {uploadedPhotos.length} ảnh đã chọn
+              {uploadedPhotos.length} {t("photos.photosSelected")}
               {photoType === "student" && selectedStudent && (
                 <span className="ml-2 text-primary">• {selectedStudent.fullName}</span>
               )}
             </p>
           </div>
         </div>
-        
-        <Button
+          <Button
           onClick={savePhotos}
           disabled={uploadedPhotos.length === 0 || isSaving}
           size="sm"
         >
           <Save className="mr-1.5 h-4 w-4" />
-          {isSaving ? "Đang lưu..." : `Lưu (${uploadedPhotos.length})`}
+          {isSaving ? t("common.saving") : `${t("common.save")} (${uploadedPhotos.length})`}
         </Button>
       </div>
 
@@ -209,17 +206,16 @@ function UploadPageContent() {
             setUploadedPhotos([])
           }
           setSelectedStudentId("")
-        }}>
-          <TabsList className="grid w-full max-w-xs grid-cols-2">
+        }}>          <TabsList className="grid w-full max-w-xs grid-cols-2">
             <TabsTrigger value="class" className="gap-2">
               <Image className="h-4 w-4" />
-              <span className="hidden sm:inline">Ảnh lớp</span>
-              <span className="sm:hidden">Lớp</span>
+              <span className="hidden sm:inline">{t("photos.classPhotos")}</span>
+              <span className="sm:hidden">{t("classes.title")}</span>
             </TabsTrigger>
             <TabsTrigger value="student" className="gap-2">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Ảnh học sinh</span>
-              <span className="sm:hidden">Học sinh</span>
+              <span className="hidden sm:inline">{t("photos.studentPhotos")}</span>
+              <span className="sm:hidden">{t("students.title")}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -229,13 +225,12 @@ function UploadPageContent() {
         {/* Upload Area */}
         <div className="flex flex-1 flex-col gap-3 md:gap-4 min-h-0">
           {/* Student selector for student photos */}
-          {photoType === "student" && (
-            <Card className="p-3 md:p-4">
+          {photoType === "student" && (            <Card className="p-3 md:p-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Chọn học sinh</label>
+                <label className="text-sm font-medium">{t("photos.selectStudent")}</label>
                 <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Chọn học sinh..." />
+                    <SelectValue placeholder={t("photos.selectStudent") + "..."} />
                   </SelectTrigger>
                   <SelectContent>
                     {students.map(student => (
@@ -244,10 +239,9 @@ function UploadPageContent() {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
-                {selectedStudent && (
+                </Select>                {selectedStudent && (
                   <p className="text-sm text-muted-foreground">
-                    Ảnh sẽ được lưu cho: <span className="font-medium text-primary">{selectedStudent.fullName}</span>
+                    {t("photos.selectStudent")}: <span className="font-medium text-primary">{selectedStudent.fullName}</span>
                   </p>
                 )}
               </div>
@@ -267,12 +261,11 @@ function UploadPageContent() {
               />
 
               {uploadedPhotos.length === 0 ? (
-                <div
-                  onClick={() => {
+                <div                  onClick={() => {
                     if (photoType === "student" && !selectedStudentId) {
                       toast({
-                        title: "Chọn học sinh",
-                        description: "Vui lòng chọn học sinh trước khi upload ảnh",
+                        title: t("photos.selectStudent"),
+                        description: t("photos.selectStudentFirst"),
                         variant: "destructive",
                       })
                       return
@@ -283,24 +276,22 @@ function UploadPageContent() {
                     "flex-1 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors",
                     "hover:border-primary hover:bg-primary/5",
                     photoType === "student" && !selectedStudentId && "opacity-50 cursor-not-allowed"
-                  )}
-                >
+                  )}                >
                   <ImagePlus className="h-16 w-16 mb-4 text-muted-foreground" />
-                  <p className="text-lg font-medium">Click để chọn ảnh</p>
+                  <p className="text-lg font-medium">{t("photos.clickToSelect")}</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Hỗ trợ JPG, PNG, WEBP. Có thể chọn nhiều ảnh.
+                    {t("photos.supportedFormats")}
                   </p>
                   {photoType === "student" && !selectedStudentId && (
                     <p className="text-sm text-destructive mt-3">
-                      ⚠️ Vui lòng chọn học sinh trước
+                      ⚠️ {t("photos.selectStudentFirst")}
                     </p>
                   )}
                 </div>
-              ) : (
-                <div className="flex-1 flex flex-col min-h-0">
+              ) : (                <div className="flex-1 flex flex-col min-h-0">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold">
-                      Ảnh đã chọn ({uploadedPhotos.length})
+                      {t("photos.photosSelected")}: {uploadedPhotos.length}
                     </h3>
                     <div className="flex gap-2">
                       <Button
@@ -310,7 +301,7 @@ function UploadPageContent() {
                         disabled={photoType === "student" && !selectedStudentId}
                       >
                         <ImagePlus className="h-4 w-4 mr-1" />
-                        Thêm
+                        {t("photos.addMore")}
                       </Button>
                       <Button
                         variant="ghost"
@@ -319,7 +310,7 @@ function UploadPageContent() {
                         onClick={() => setUploadedPhotos([])}
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
-                        Xóa tất cả
+                        {t("photos.deleteAll")}
                       </Button>
                     </div>
                   </div>
@@ -369,12 +360,11 @@ function UploadPageContent() {
             </CardContent>
           </Card>
 
-          {/* Mobile Preview Thumbnails */}
-          {uploadedPhotos.length > 0 && (
+          {/* Mobile Preview Thumbnails */}          {uploadedPhotos.length > 0 && (
             <div className="md:hidden">
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-xs font-semibold">Xem nhanh</h3>
-                <span className="text-xs text-muted-foreground">({uploadedPhotos.length} ảnh)</span>
+                <h3 className="text-xs font-semibold">{t("photos.quickPreview")}</h3>
+                <span className="text-xs text-muted-foreground">({uploadedPhotos.length})</span>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {uploadedPhotos.map((photo, index) => (
@@ -396,8 +386,7 @@ function UploadPageContent() {
             </div>
           )}
 
-          {/* Bottom Action Bar - Mobile */}
-          {uploadedPhotos.length > 0 && (
+          {/* Bottom Action Bar - Mobile */}          {uploadedPhotos.length > 0 && (
             <div className="md:hidden flex gap-2 pt-2 border-t">
               <Button
                 variant="outline"
@@ -405,7 +394,7 @@ function UploadPageContent() {
                 onClick={() => router.back()}
               >
                 <X className="h-4 w-4 mr-1" />
-                Hủy
+                {t("common.cancel")}
               </Button>
               <Button
                 className="flex-1"
@@ -413,7 +402,7 @@ function UploadPageContent() {
                 disabled={isSaving}
               >
                 <Save className="h-4 w-4 mr-1" />
-                {isSaving ? "Đang lưu..." : `Lưu (${uploadedPhotos.length})`}
+                {isSaving ? t("common.saving") : `${t("common.save")} (${uploadedPhotos.length})`}
               </Button>
             </div>
           )}
@@ -429,7 +418,7 @@ export default function UploadPage() {
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-          <p>Đang tải...</p>
+          <p>{/* Loading text will use browser's language */}</p>
         </div>
       </div>
     }>

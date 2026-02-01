@@ -1,6 +1,7 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
+import { useLanguage } from "@/lib/language-context"
 import { TATeacherDashboard } from "@/components/dashboard/ta-teacher-dashboard"
 import { StudentCareDashboard } from "@/components/dashboard/student-care-dashboard"
 import { AcademicAdminDashboard } from "@/components/dashboard/academic-admin-dashboard"
@@ -12,6 +13,7 @@ import { useState, useEffect } from "react"
 
 export default function DashboardPage() {
   const { currentRole } = useAuth()
+  const { t } = useLanguage()
   const [showShowcase, setShowShowcase] = useState(false)
 
   useEffect(() => {
@@ -26,8 +28,10 @@ export default function DashboardPage() {
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Welcome to your {currentRole} dashboard</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{t("nav.dashboard")}</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            {t("dashboard.welcome")} {currentRole} dashboard
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <DashboardCustomizer />
